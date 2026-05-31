@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "client": "cd client && npm run dev",
+    "server": "uvicorn main:app --reload",
+    "dev": "concurrently \"npm run client\" \"npm run server\""
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.0"
+  }
+}
