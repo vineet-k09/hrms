@@ -26,4 +26,4 @@ SessionLocal = sessionmaker(
 class Base(DeclarativeBase):
     pass
 
-print(Base.metadata.tables.keys())
+print("Might be empty, no need to worry: " & Base.metadata.tables.keys())
