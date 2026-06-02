@@ -126,7 +126,8 @@ with SessionLocal() as db:
             continue
         employee = Employee(
             employee_code=data["code"],
-            full_name=data["full_name"],
+            first_name=data["first_name"],
+            last_name=data["last_name"],
             designation=data["designation"],
             salary=data["salary"],
             department_id=dept.id,
