@@ -39,24 +39,41 @@ def signup_user(db: Session, data: SignupRequest) -> User:
     return new_user
 
 
-# ─────────────────────────────────────────────
-# EMPLOYEE LOGIN
-# ─────────────────────────────────────────────
-def login_employee(db: Session, employee_id: str, password: str) -> dict:
-    user = db.query(User).filter(User.employee_id == employee_id).first()
+def login_user(
+    db: Session,
+    identifier: str,
+    password: str
+) -> dict:
 
-    if not user or not verify_password(password, user.password_hash):
+    # Try employee_id first
+    user = db.query(User).filter(
+        User.employee_id == identifier
+    ).first()
+
+    # If not found, try email
+    if not user:
+        user = db.query(User).filter(
+            User.email == identifier
+        ).first()
+
+    # User not found or password mismatch
+    if not user or not verify_password(
+        password,
+        user.password_hash
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Employee ID or password"
+            detail="Invalid credentials"
         )
 
+    # Account disabled
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is deactivated"
         )
 
+    # Generate JWT
     token = create_access_token(
         data={
             "sub": str(user.id),
@@ -65,45 +82,7 @@ def login_employee(db: Session, employee_id: str, password: str) -> dict:
     )
 
     return {
-        "access_token": token,
-        "token_type": "bearer",
-        "user": {
-            "id": str(user.id),
-            "full_name": user.full_name,
-            "email": user.email,
-            "employee_id": user.employee_id,
-            "role": user.role.value,
-            "is_active": user.is_active
-        }
-    }
-
-
-# ─────────────────────────────────────────────
-# CANDIDATE LOGIN
-# ─────────────────────────────────────────────
-def login_candidate(db: Session, email: str, password: str) -> dict:
-    user = db.query(User).filter(User.email == email).first()
-
-    if not user or not verify_password(password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Account is deactivated"
-        )
-
-    token = create_access_token(
-        data={
-            "sub": str(user.id),
-            "role": user.role.value
-        }
-    )
-
-    return {
+        "message": "Login successful",
         "access_token": token,
         "token_type": "bearer",
         "user": {

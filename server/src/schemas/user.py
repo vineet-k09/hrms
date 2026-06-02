@@ -41,9 +41,9 @@ class SignupRequest(BaseModel):
     def password_must_be_strong(cls, v):
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")
-        return v
         if len(v.encode("utf-8")) > 72:
             raise ValueError("Password cannot exceed 72 characters")
+        return v
 
     @field_validator("confirm_password")
     @classmethod
@@ -62,13 +62,8 @@ class SignupResponse(BaseModel):
 
 # ── Login ───────────────────────────────────────────────
 
-class EmployeeLoginRequest(BaseModel):
-    employee_id: str
-    password: str
-
-
-class CandidateLoginRequest(BaseModel):
-    email: EmailStr
+class LoginRequest(BaseModel):
+    identifier: str
     password: str
 
 
