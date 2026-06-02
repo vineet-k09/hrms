@@ -137,6 +137,6 @@
     @apply bg-background text-foreground;
   }
   html {
-    @apply font-sans;   /* Now this actually works because --font-sans is fixed */
+    @apply font-sans;
   }
 }
