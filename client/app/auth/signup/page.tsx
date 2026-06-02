@@ -22,7 +22,6 @@ import {
   CheckCircle2,
   Briefcase,
   Hash,
-  TrendingUp,
   ClipboardList,
   DollarSign,
   Calendar,

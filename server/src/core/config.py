@@ -1,5 +1,10 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
 from typing import List
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+SERVER_DIR = Path(__file__).resolve().parents[2]
 
 
 class Settings(BaseSettings):
@@ -14,15 +19,17 @@ class Settings(BaseSettings):
     # ─────────────────────────────
     SECRET_KEY: str = "change-this-in-production"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 1 day
-    
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+
     # ─────────────────────────────
-    # POSTGRES
+    # DATABASE
     # ─────────────────────────────
     DATABASE_URL: str
+
     DATABASE: str
     DATABASE_USER: str
-    DATABASE_PASSWORD: str 
+    DATABASE_PASSWORD: str
+
     # ─────────────────────────────
     # CORS
     # ─────────────────────────────
@@ -31,11 +38,11 @@ class Settings(BaseSettings):
         "http://localhost:5173",
     ]
 
-    # pydantic v2 config
-    model_config = {
-        "env_file": ".env",
-        "case_sensitive": True
-    }
+    model_config = SettingsConfigDict(
+        env_file=SERVER_DIR / ".env",
+        case_sensitive=True,
+        extra="ignore",
+    )
 
 
 settings = Settings()
