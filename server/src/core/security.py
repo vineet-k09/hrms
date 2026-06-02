@@ -3,9 +3,9 @@ from typing import Optional
 
 from jose import jwt, JWTError
 from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
-
+from fastapi.security import OAuth2PasswordBearer
 from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
@@ -49,15 +49,12 @@ def create_access_token(
 # ─────────────────────────────────────────────
 # AUTH DEPENDENCY
 # ─────────────────────────────────────────────
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
 def get_current_user(
-    request: Request,
+    token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    token = request.cookies.get("access_token")
-
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
     try:
         payload = jwt.decode(
             token,
@@ -79,3 +76,6 @@ def get_current_user(
         raise HTTPException(status_code=401, detail="User not found or inactive")
 
     return user
+
+
+
