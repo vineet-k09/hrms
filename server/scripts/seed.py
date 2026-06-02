@@ -59,6 +59,7 @@ with SessionLocal() as db:
 
         if user is None:
             user = User(
+                full_name="ABCD",
                 email=email,
                 password_hash=hash_password(password),
                 role=role,
@@ -125,8 +126,7 @@ with SessionLocal() as db:
             continue
         employee = Employee(
             employee_code=data["code"],
-            first_name=data["first_name"],
-            last_name=data["last_name"],
+            full_name=data["full_name"],
             designation=data["designation"],
             salary=data["salary"],
             department_id=dept.id,
