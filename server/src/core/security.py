@@ -4,9 +4,12 @@ from typing import Optional
 import bcrypt
 
 from jose import jwt, JWTError
-from fastapi import Depends, HTTPException, Request
-from sqlalchemy.orm import Session
 
+from passlib.context import CryptContext
+from fastapi import Depends, HTTPException, status
+
+from sqlalchemy.orm import Session
+from fastapi.security import OAuth2PasswordBearer
 from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
@@ -67,6 +70,8 @@ def create_access_token(
 # ─────────────────────────────────────────────
 # AUTH DEPENDENCY
 # ─────────────────────────────────────────────
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
 def get_current_user(
     request: Request,
     db: Session = Depends(get_db),
@@ -119,3 +124,6 @@ def get_current_user(
         )
 
     return user
+
+
+
