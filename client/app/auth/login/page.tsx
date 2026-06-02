@@ -371,7 +371,7 @@ export default function LoginPage() {
                 href="/signup"
                 onClick={(e) => {
                   e.preventDefault();
-                  router.push("/signup");
+                  router.push("/auth/signup");
                 }}
                 className="text-[#2563EB] font-medium hover:underline"
               >

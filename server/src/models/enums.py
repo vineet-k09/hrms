@@ -1,10 +1,12 @@
 from enum import Enum
 
+
 class UserRole(str, Enum):
-    ADMIN = "ADMIN"
-    SENIOR_MANAGER = "SENIOR_MANAGER"
-    HR_RECRUITER = "HR_RECRUITER"
-    EMPLOYEE = "EMPLOYEE"
+    ADMIN = "admin"
+    SENIOR_MANAGER = "senior_manager"
+    HR_RECRUITER = "hr_recruiter"
+    EMPLOYEE = "employee"
+    CANDIDATE = "candidate"
 
 
 class EmployeeStatus(str, Enum):
