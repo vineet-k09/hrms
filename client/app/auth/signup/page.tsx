@@ -280,6 +280,7 @@ export default function SignupPage() {
                         <SelectItem value="hr_recruiter">HR Recruiter</SelectItem>
                         <SelectItem value="senior_manager">Senior Manager</SelectItem>
                         <SelectItem value="admin">Admin</SelectItem>
+                        <SelectItem value="candidate">Candidate</SelectItem>
                       </SelectContent>
                     </Select>
                     {errors.role && (
@@ -367,7 +368,7 @@ export default function SignupPage() {
                   Already have an account?{" "}
                   <a
                     href="/login"
-                    onClick={e => { e.preventDefault(); router.push("/login"); }}
+                    onClick={e => { e.preventDefault(); router.push("/auth/login"); }}
                     className="text-[#2563EB] font-medium hover:underline"
                   >
                     Sign In

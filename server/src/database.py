@@ -26,4 +26,11 @@ SessionLocal = sessionmaker(
 class Base(DeclarativeBase):
     pass
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
 print("Might be empty, no need to worry: " & Base.metadata.tables.keys())
