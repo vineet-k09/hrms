@@ -39,6 +39,10 @@ def signup_user(db: Session, data: SignupRequest) -> User:
     return new_user
 
 
+# ─────────────────────────────────────────────
+# LOGIN
+# ─────────────────────────────────────────────
+
 def login_user(
     db: Session,
     identifier: str,

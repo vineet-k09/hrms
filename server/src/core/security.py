@@ -1,3 +1,5 @@
+#src/core/security.py
+
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -13,6 +15,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
+from src.models.enums import UserRole
 
 
 # ─────────────────────────────────────────────
@@ -65,8 +68,6 @@ def create_access_token(
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
-
-
 # ─────────────────────────────────────────────
 # AUTH DEPENDENCY
 # ─────────────────────────────────────────────
@@ -85,6 +86,7 @@ def get_current_user(
         )
 
         user_id: str = payload.get("sub")
+        role: str = payload.get("role")
 
         if not user_id:
             raise HTTPException(status_code=401, detail="Invalid token")
@@ -100,6 +102,17 @@ def get_current_user(
     return user
 
 
+# ─────────────────────────────────────────────
+# ROLE BASED ACCESS
+# ─────────────────────────────────────────────
 
-
+def require_roles(*allowed_roles: UserRole):
+    def role_checker(current_user=Depends(get_current_user)):
+        if UserRole(current_user.role) not in allowed_roles:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden: insufficient permissions"
+            )
+        return current_user
+    return role_checker
 
