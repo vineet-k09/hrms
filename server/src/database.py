@@ -14,7 +14,14 @@ if not DATABASE_URL:
 
 engine = create_engine(
     DATABASE_URL,
-    echo=True
+    echo=True,
+    pool_pre_ping=True,
+    pool_recycle=300,
+    pool_timeout=5,
+    connect_args={
+        "connect_timeout": 5
+    }
+
 )
 
 SessionLocal = sessionmaker(
@@ -33,4 +40,4 @@ def get_db():
     finally:
         db.close()
         
-print("Might be empty, no need to worry: " & Base.metadata.tables.keys())
+print("Tables loaded:", list(Base.metadata.tables.keys()))

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import  {useRouter} from "next/navigation";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -34,7 +35,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const navItems = [
+
+ const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", active: true },
   { icon: Users, label: "Employees" },
   { icon: CalendarCheck, label: "Attendance" },
@@ -178,6 +180,15 @@ function avatarColor(name: string) {
 export default function DashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      router.replace("/auth/login");
+    }
+  }, [router])
+
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   return (
