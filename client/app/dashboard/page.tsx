@@ -4,48 +4,24 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
   Users,
   CalendarCheck,
   ClipboardList,
-  DollarSign,
-  UserSearch,
   Bot,
-  Settings,
-  LogOut,
   Bell,
   Search,
   TrendingUp,
   TrendingDown,
   Briefcase,
-  ChevronRight,
   Menu,
-  X,
-  MoreHorizontal,
   Clock,
   Cake,
   Video,
   FileText,
   BarChart3,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Users, label: "Employees" },
-  { icon: CalendarCheck, label: "Attendance" },
-  { icon: ClipboardList, label: "Leave" },
-  { icon: DollarSign, label: "Payroll" },
-  { icon: UserSearch, label: "Recruitment" },
-  { icon: Bot, label: "AI Evaluation" },
-  { icon: Settings, label: "Settings" },
-];
+import { Input } from "@/components/ui/input";
 
 const stats = [
   {

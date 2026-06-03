@@ -5,43 +5,15 @@ import { useRouter } from "next/navigation";
 import { Leave } from "../types";
 
 import {
-	LayoutDashboard,
-	Users,
-	CalendarCheck,
-	ClipboardList,
-	DollarSign,
-	UserSearch,
-	Bot,
-	Settings,
-	LogOut,
 	Bell,
 	Menu,
-	X,
-	MoreHorizontal,
-	ChevronRight,
 	ArrowLeft,
 	CheckCircle,
 	XCircle,
 	AlertCircle,
 	Calendar,
 } from "lucide-react";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-const navItems = [
-	{ icon: LayoutDashboard, label: "Dashboard", link: "/dashboard" },
-	{ icon: Users, label: "Employees", link: "" },
-	{ icon: CalendarCheck, label: "Attendance", link: "" },
-	{ icon: ClipboardList, label: "Leave", active: true, link: "/leave" },
-	{ icon: DollarSign, label: "Payroll", link: "" },
-	{ icon: UserSearch, label: "Recruitment", link: "" },
-	{ icon: Bot, label: "AI Evaluation", link: "" },
-	{ icon: Settings, label: "Settings", link: "" },
-];
+import Sidebar from "@/components/ui/sidebar";
 
 function StatusBadge({ status }: { status: string }) {
 	const map: Record<string, { label: string; cls: string }> = {
@@ -173,102 +145,7 @@ export default function LeaveReviewPage() {
 	return (
 		<div className="min-h-screen flex bg-[#F8FAFC] font-sans">
 			{/* ── SIDEBAR ── */}
-			<>
-				{sidebarOpen && (
-					<div
-						className="fixed inset-0 bg-black/40 z-30 lg:hidden"
-						onClick={() => setSidebarOpen(false)}
-					/>
-				)}
-
-				<aside
-					className={`
-            fixed top-0 left-0 h-full z-40 flex flex-col
-            w-70 transition-transform duration-300
-            lg:relative lg:translate-x-0 lg:z-auto lg:shrink-0
-            ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
-          `}
-					style={{
-						background: "linear-gradient(180deg, #0f172a 0%, #1a2744 100%)",
-					}}>
-					<div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-						<div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0">
-							<div className="w-4 h-4 rounded-sm bg-white" />
-						</div>
-						<span className="text-white font-bold text-lg tracking-tight">
-							MyGreenhouse
-						</span>
-						<button
-							className="ml-auto lg:hidden text-white/60 hover:text-white"
-							onClick={() => setSidebarOpen(false)}>
-							<X className="w-5 h-5" />
-						</button>
-					</div>
-
-					<nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-						{navItems.map(({ icon: Icon, label, active, link }) => (
-							<button
-								key={label}
-								onClick={() => router.push(link)}
-								className={`
-                  w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
-                  transition-all duration-150 group relative
-                  ${
-										active
-											? "bg-[#2563EB]/20 text-white"
-											: "text-slate-400 hover:bg-white/5 hover:text-slate-200"
-									}
-                `}>
-								{active && (
-									<div className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#2563EB] rounded-r-full" />
-								)}
-								<Icon
-									className={`w-4 h-4 shrink-0 ${active ? "text-[#2563EB]" : ""}`}
-								/>
-								{label}
-								{active && (
-									<ChevronRight className="w-3.5 h-3.5 ml-auto opacity-60" />
-								)}
-							</button>
-						))}
-					</nav>
-
-					<div className="px-3 py-4 border-t border-white/10">
-						<div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
-							<div className="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
-								<span className="text-white text-xs font-bold">
-									{initials(userProfile.name)}
-								</span>
-							</div>
-							<div className="flex-1 min-w-0">
-								<p className="text-white text-sm font-medium truncate">
-									{userProfile.name}
-								</p>
-								<p className="text-slate-400 text-xs truncate">
-									{userProfile.role}
-								</p>
-							</div>
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<button className="text-slate-400 hover:text-white transition-colors">
-										<MoreHorizontal className="w-4 h-4" />
-									</button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="w-44">
-									<DropdownMenuItem>
-										<Settings className="w-4 h-4 mr-2" /> Settings
-									</DropdownMenuItem>
-									<DropdownMenuItem
-										className="text-red-600"
-										onClick={() => router.push("/auth/login")}>
-										<LogOut className="w-4 h-4 mr-2" /> Log Out
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
-					</div>
-				</aside>
-			</>
+			<Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
 			{/* ── MAIN CONTENT ── */}
 			<div className="flex-1 flex flex-col min-w-0 overflow-hidden">

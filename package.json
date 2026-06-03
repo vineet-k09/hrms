@@ -6,7 +6,8 @@
 		"pg": "docker exec -it server-postgres-1 psql -U hrms -d hrms",
 		"dev": "concurrently \"npm run client\" \"npm run server\"",
 		"head": "cd server && alembic upgrade head",
-		"docker":"cd server && docker compose up -d"
+		"migrate": "cd server && sh -c 'alembic revision --autogenerate -m \"$@\"' _",
+		"docker": "cd server && docker compose up -d"
 	},
 	"devDependencies": {
 		"concurrently": "^10.0.0"
