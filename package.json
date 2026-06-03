@@ -1,11 +1,12 @@
 {
-  "scripts": {
-    "client": "cd client && npm run dev",
-    "server": "uvicorn main:app --reload",
-    "env:fedora": "source server/env/bin/activate",
-    "dev": "concurrently \"npm run client\" \"npm run server\""
-  },
-  "devDependencies": {
-    "concurrently": "^10.0.0"
-  }
+	"scripts": {
+		"client": "cd client && npm run dev",
+		"server": "cd server && uvicorn main:app --reload",
+		"env:fedora": "source server/env/bin/activate",
+		"pg": "docker exec -it server-postgres-1 psql -U hrms -d hrms",
+		"dev": "concurrently \"npm run client\" \"npm run server\""
+	},
+	"devDependencies": {
+		"concurrently": "^10.0.0"
+	}
 }

@@ -22,23 +22,13 @@ import {
   Menu,
   X,
   MoreHorizontal,
-  CheckCircle2,
   Clock,
-  XCircle,
-  AlertCircle,
-  Star,
   Cake,
   Video,
   FileText,
   BarChart3,
-  Globe,
-  ChevronUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
