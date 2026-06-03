@@ -7,7 +7,7 @@ from src.routes.candidate import router as candidate_routes_router
 from src.routes.hr import router as hr_routes_router
 from src.modules.attendance.router import router as attendance_router
 from src.modules.employee.router import router as employee_router
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 app.include_router(auth_routes_router)
@@ -18,6 +18,18 @@ app.include_router(hr_routes_router)
 app.include_router(employee_router)
 app.include_router(attendance_router)
 
+
+# Handle CORS
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def root():

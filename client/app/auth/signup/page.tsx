@@ -67,6 +67,7 @@ export default function SignupPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
   const router = useRouter();
   const [form, setForm] = useState({
     fullName: "",
@@ -97,13 +98,45 @@ export default function SignupPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const errs = validate();
-    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setErrors(errs);
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setTimeout(() => router.push("/dashboard"), 1500);
-    }, 1400);
+    setApiError("");
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const signupData = {
+  full_name: form.fullName,
+  email: form.email,
+  employee_id: form.employeeId,
+  role: form.role,
+  password: form.password,
+  confirm_password: form.confirmPassword,
+};
+
+    fetch(`${apiUrl}/auth/signup`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(signupData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.error) {
+          setSuccess(true);
+          setTimeout(() => router.push("/auth/login"), 1500);
+        } else {
+          setApiError(data.detail || "Signup failed. Please try again.");
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        setApiError(err.message || "An error occurred. Please try again.");
+        setLoading(false);
+      });
   }
 
   const features = [
@@ -205,6 +238,13 @@ export default function SignupPage() {
                 <h2 className="text-[28px] font-bold text-[#1E293B]">Create Your Account</h2>
                 <p className="text-[#64748B] text-sm mt-1">Fill in your details to get started with MyGreenhouse</p>
               </div>
+
+              {apiError && (
+                <div className="mb-5 p-4 rounded-lg bg-red-50 border border-red-200 flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-700">{apiError}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Row 1: Full Name | Email */}
