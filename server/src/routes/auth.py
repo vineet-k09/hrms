@@ -16,7 +16,7 @@ def signup(payload: SignupRequest, db: Session = Depends(get_db)):
     user = signup_user(db, payload)
     return SignupResponse(
         message="User created successfully",
-        user_id=str(user.id),
+        user_id=user.id, # args of :str cant be assigned cause UUID
         email=user.email,
         role=user.role.value
     )
