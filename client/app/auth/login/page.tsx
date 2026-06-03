@@ -33,14 +33,89 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("employee");
 
+  // Store JWT in localStorage and redirect based on role
+  function storeTokenAndRedirect(token: string, role: string) {
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("userRole", role);
+
+    // Role-based redirect
+    const roleRedirects: Record<string, string> = {
+      employee: "/dashboard",
+      hr_recruiter: "/dashboard",
+      senior_manager: "/dashboard",
+      admin: "/dashboard",
+      candidate: "/candidate/dashboard",
+    };
+
+    const redirectPath = roleRedirects[role] || "/dashboard";
+    setTimeout(() => router.push(redirectPath), 800);
+  }
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    // Validate input
+    if (activeTab === "employee") {
+      if (!employeeId.trim()) {
+        setError("Employee ID is required");
+        return;
+      }
+      if (!password.trim()) {
+        setError("Password is required");
+        return;
+      }
+    } else {
+      if (!email.trim()) {
+        setError("Email is required");
+        return;
+      }
+      if (!password.trim()) {
+        setError("Password is required");
+        return;
+      }
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      router.push("/dashboard");
-    }, 1200);
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const loginData = {
+      identifier: activeTab === "employee" ? employeeId : email,
+      password,
+    };
+
+    fetch(`${apiUrl}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginData),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.access_token) {
+          const role =
+            data.user?.role ||
+            (activeTab === "employee" ? "employee" : "candidate");
+
+          storeTokenAndRedirect(data.access_token, role);
+        } else {
+          let errorMessage = "Login failed. Please try again.";
+
+          if (typeof data.detail === "string") {
+            errorMessage = data.detail;
+          } else if (Array.isArray(data.detail)) {
+            errorMessage = data.detail.map((err: any) => err.msg).join(", ");
+          }
+
+          setError(errorMessage);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        setError(err.message || "An error occurred. Please try again.");
+        setLoading(false);
+      });
   }
 
   const features = [

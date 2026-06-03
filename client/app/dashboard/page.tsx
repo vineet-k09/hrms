@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import  {useRouter} from "next/navigation";
+import { useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -43,6 +44,7 @@ const navItems = [
 	{ icon: UserSearch, label: "Recruitment", link: "" },
 	{ icon: Bot, label: "AI Evaluation", link: "" },
 	{ icon: Settings, label: "Settings", link: "" },
+
 ];
 
 const stats = [
@@ -178,6 +180,15 @@ function avatarColor(name: string) {
 export default function DashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
+      router.replace("/auth/login");
+    }
+  }, [router])
+
   const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
 
   return (

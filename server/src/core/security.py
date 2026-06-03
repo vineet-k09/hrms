@@ -1,3 +1,5 @@
+#src/core/security.py
+
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -8,10 +10,12 @@ from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, Request
 
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
+from src.models.enums import UserRole
+
 
 
 # ─────────────────────────────────────────────
@@ -64,16 +68,14 @@ def create_access_token(
         settings.SECRET_KEY,
         algorithm=settings.ALGORITHM,
     )
-
-
 # ─────────────────────────────────────────────
 # AUTH DEPENDENCY
 # ─────────────────────────────────────────────
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = HTTPBearer()
 
 def get_current_user(
-    request: Request,
-    db: Session = Depends(get_db),
+    token: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
     token = request.cookies.get("access_token")
 
@@ -84,13 +86,15 @@ def get_current_user(
         )
 
     try:
+        print("Token received:", token.credentials)
         payload = jwt.decode(
-            token,
+            token.credentials,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
         )
 
-        user_id = payload.get("sub")
+        user_id: str = payload.get("sub")
+        role: str = payload.get("role")
 
         if not user_id:
             raise HTTPException(
@@ -125,4 +129,17 @@ def get_current_user(
     return user
 
 
+# ─────────────────────────────────────────────
+# ROLE BASED ACCESS
+# ─────────────────────────────────────────────
+
+def require_roles(*allowed_roles: UserRole):
+    def role_checker(current_user=Depends(get_current_user)):
+        if UserRole(current_user.role) not in allowed_roles:
+            raise HTTPException(
+                status_code=403,
+                detail="Forbidden: insufficient permissions"
+            )
+        return current_user
+    return role_checker
 
