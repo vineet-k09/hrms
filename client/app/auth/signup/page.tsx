@@ -117,26 +117,37 @@ export default function SignupPage() {
 };
 
     fetch(`${apiUrl}/auth/signup`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(signupData),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.error) {
-          setSuccess(true);
-          setTimeout(() => router.push("/auth/login"), 1500);
-        } else {
-          setApiError(data.detail || "Signup failed. Please try again.");
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        setApiError(err.message || "An error occurred. Please try again.");
-        setLoading(false);
-      });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify(signupData),
+})
+  .then(async (res) => {
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(
+        Array.isArray(data.detail)
+          ? data.detail.map((e: any) => e.msg).join(", ")
+          : data.detail || "Signup failed"
+      );
+    }
+
+    return data;
+  })
+  .then(() => {
+    setLoading(false);
+    setSuccess(true);
+
+    setTimeout(() => {
+      router.push("/auth/login");
+    }, 1500);
+  })
+  .catch((err) => {
+    setApiError(err.message);
+    setLoading(false);
+  });
   }
 
   const features = [

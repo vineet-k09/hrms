@@ -1,0 +1,277 @@
+"use client";
+
+/**
+ * MyGreenhouse – Role-aware Sidebar
+ *
+ * Next.js usage (swap the two imports below):
+ *   import { usePathname, useRouter } from "next/navigation";
+ *   const pathname = usePathname();
+ *   const router  = useRouter();
+ *   onClick={() => router.push(item.href)
+ *
+ * Vite / wouter (current demo):
+ *   import { useLocation } from "wouter";
+ *   const [pathname, navigate] = useLocation();
+ *   onClick={() => navigate(item.href)
+ */
+
+import { useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LayoutDashboard,
+  Users,
+  Calendar,
+  ClipboardList,
+  DollarSign,
+  Briefcase,
+  FileSearch,
+  Bot,
+  BarChart2,
+  Settings,
+  TrendingUp,
+  FileText,
+  Mail,
+  User,
+  HelpCircle,
+  X,
+  MoreHorizontal,
+  LogOut,
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// ─── Nav definitions ─────────────────────────────────────────────────────────
+
+type NavItem = { label: string; icon: React.ElementType; href: string };
+
+const NAV: Record<string, NavItem[]> = {
+  admin: [
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "Employees", icon: Users, href: "/employees" },
+    { label: "Attendance", icon: Calendar, href: "/attendance" },
+    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Payroll", icon: DollarSign, href: "/payroll" },
+    { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
+    { label: "Resume Ranking", icon: FileSearch, href: "/resume-ranking" },
+    { label: "AI Interview Setup", icon: Bot, href: "/ai-interview-setup" },
+    { label: "Reports", icon: BarChart2, href: "/reports" },
+    { label: "Settings", icon: Settings, href: "/settings" },
+  ],
+  hr_recruiter: [
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "Employees", icon: Users, href: "/employees" },
+    { label: "Attendance", icon: Calendar, href: "/attendance" },
+    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Payroll", icon: DollarSign, href: "/payroll" },
+    { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
+    { label: "Resume Ranking", icon: FileSearch, href: "/resume-ranking" },
+    { label: "AI Interview Setup", icon: Bot, href: "/ai-interview-setup" },
+    { label: "Reports", icon: BarChart2, href: "/reports" },
+    { label: "Settings", icon: Settings, href: "/settings" },
+  ],
+  senior_manager: [
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "Workforce Overview", icon: Users, href: "/workforce" },
+    { label: "Attendance", icon: Calendar, href: "/attendance" },
+    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Payroll Overview", icon: DollarSign, href: "/payroll" },
+    { label: "Recruitment Pipeline", icon: Briefcase, href: "/recruitment" },
+    { label: "AI Interview Results", icon: Bot, href: "/ai-results" },
+    { label: "Analytics", icon: TrendingUp, href: "/analytics" },
+    { label: "Settings", icon: Settings, href: "/settings" },
+  ],
+  employee: [
+    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+    { label: "My Profile", icon: User, href: "/profile" },
+    { label: "Attendance", icon: Calendar, href: "/attendance" },
+    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "My Payslips", icon: DollarSign, href: "/payslips" },
+    { label: "My Performance", icon: TrendingUp, href: "/performance" },
+    { label: "Support", icon: HelpCircle, href: "/support" },
+  ],
+  candidate: [
+    { label: "My Applications", icon: FileText, href: "/applications" },
+    { label: "Interview Schedule", icon: Calendar, href: "/interviews" },
+    { label: "AI Interview", icon: Bot, href: "/ai-interview" },
+    { label: "Resume Status", icon: FileSearch, href: "/resume-status" },
+    { label: "Offer Letter", icon: Mail, href: "/offer-letter" },
+    { label: "My Profile", icon: User, href: "/profile" },
+  ],
+};
+
+const ROLE_LABELS: Record<string, string> = {
+  admin: "Admin",
+  hr_recruiter: "HR Recruiter",
+  senior_manager: "Senior Manager",
+  employee: "Employee",
+  candidate: "Candidate",
+};
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function initials(name: string) {
+  return name
+    .split(" ")
+    .map((n) => n[0] ?? "")
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
+interface SidebarProps {
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export default function Sidebar({ open = true, onClose }: SidebarProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const [role, setRole] = useState("hr_recruiter");
+  const [name, setName] = useState("John Doe");
+
+  useEffect(() => {
+    const storedRole = localStorage.getItem("userRole") ?? "hr_recruiter";
+    const storedName = localStorage.getItem("userName") ?? "John Doe";
+    setRole(storedRole);
+    setName(storedName);
+  }, []);
+
+  const navItems = NAV[role] ?? NAV.employee;
+  const roleLabel = ROLE_LABELS[role] ?? role;
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      <aside
+        className={[
+          // REPLACE WITH
+          "fixed top-0 left-0 h-screen z-40 flex flex-col  w-70",
+          "transition-transform duration-300 ease-in-out",
+          "lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:z-auto lg:shrink-0",
+          open ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+        style={{
+          background: "linear-gradient(180deg, #0f172a 0%, #1a2744 100%)",
+        }}
+      >
+        {/* ── Logo ── */}
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10 shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-[#2563EB] flex items-center justify-center shrink-0">
+            <div className="w-4 h-4 rounded-sm bg-white" />
+          </div>
+          <span className="text-white font-bold text-[17px] tracking-tight">
+            MyGreenhouse
+          </span>
+          {onClose && (
+            <button
+              className="ml-auto lg:hidden text-white/50 hover:text-white transition-colors"
+              onClick={onClose}
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* ── Role badge ── */}
+        <div className="px-6 pt-4 pb-2 shrink-0">
+          <span className="inline-flex items-center px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase rounded-full bg-[#2563EB]/20 text-blue-300 border border-blue-500/20">
+            {roleLabel}
+          </span>
+        </div>
+
+        {/* ── Nav ── */}
+        <nav className="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto scrollbar-none">
+          {navItems.map(({ label, icon: Icon, href }) => {
+            const active = pathname === href || pathname.startsWith(href + "/");
+            return (
+              <button
+                key={label}
+                onClick={() => router.push(href)}
+                className={[
+                  "w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium",
+                  "relative transition-all duration-150 group",
+                  active
+                    ? "bg-[#2563EB]/20 text-white"
+                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
+                ].join(" ")}
+              >
+                {/* left active bar */}
+                {active && (
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-[#2563EB] rounded-r-full" />
+                )}
+                <Icon
+                  className={[
+                    "w-4 h-4 shrink-0 transition-colors",
+                    active
+                      ? "text-[#2563EB]"
+                      : "text-slate-500 group-hover:text-slate-300",
+                  ].join(" ")}
+                />
+                <span className="truncate">{label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* ── User profile ── */}
+        <div className="px-3 py-4 border-t border-white/10 shrink-0">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 transition-colors">
+            {/* Avatar circle with initials */}
+            <div className="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
+              <span className="text-white text-xs font-bold">
+                {initials(name)}
+              </span>
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-medium truncate leading-tight">
+                {name}
+              </p>
+              <p className="text-slate-400 text-xs truncate mt-0.5">
+                {roleLabel}
+              </p>
+            </div>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="text-slate-400 hover:text-white transition-colors shrink-0">
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" side="top" className="w-44">
+                <DropdownMenuItem>
+                  <Settings className="w-4 h-4 mr-2" /> Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600"
+                  onClick={() => {
+                    localStorage.removeItem("authToken");
+                    localStorage.removeItem("userRole");
+
+                    router.replace("/auth/login");
+                  }}
+                >
+                  <LogOut className="w-4 h-4 mr-2" /> Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
