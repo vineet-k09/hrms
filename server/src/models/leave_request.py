@@ -1,7 +1,7 @@
 from src.database import Base
 from .base import UUIDMixin, TimestampMixin
 from sqlalchemy import ForeignKey, Enum, Date, String
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import mapped_column, relationship
 from .enums import LeaveStatus, LeaveType
 
 class LeaveRequest(UUIDMixin, TimestampMixin, Base):
@@ -9,6 +9,11 @@ class LeaveRequest(UUIDMixin, TimestampMixin, Base):
 
     employee_id = mapped_column(
         ForeignKey("employees.id")
+    )
+
+    employee = relationship(
+        "Employee",
+        foreign_keys=[employee_id]
     )
 
     approved_by = mapped_column(
@@ -35,3 +40,10 @@ class LeaveRequest(UUIDMixin, TimestampMixin, Base):
     end_date = mapped_column(Date)
 
     reason = mapped_column(String)
+
+    @property
+    def employee_name(self):
+        if not self.employee:
+            return None
+
+        return f"{self.employee.first_name} {self.employee.last_name}"

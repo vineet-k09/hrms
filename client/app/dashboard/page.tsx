@@ -35,14 +35,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Users, label: "Employees" },
-  { icon: CalendarCheck, label: "Attendance" },
-  { icon: ClipboardList, label: "Leave" },
-  { icon: DollarSign, label: "Payroll" },
-  { icon: UserSearch, label: "Recruitment" },
-  { icon: Bot, label: "AI Evaluation" },
-  { icon: Settings, label: "Settings" },
+	{ icon: LayoutDashboard, label: "Dashboard", active: true, link: "dashboard" },
+	{ icon: Users, label: "Employees", link: "" },
+	{ icon: CalendarCheck, label: "Attendance", link: "" },
+	{ icon: ClipboardList, label: "Leave", link: "/leave" },
+	{ icon: DollarSign, label: "Payroll", link: "" },
+	{ icon: UserSearch, label: "Recruitment", link: "" },
+	{ icon: Bot, label: "AI Evaluation", link: "" },
+	{ icon: Settings, label: "Settings", link: "" },
 ];
 
 const stats = [
@@ -217,9 +217,10 @@ export default function DashboardPage() {
 
           {/* Nav */}
           <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
-            {navItems.map(({ icon: Icon, label, active }) => (
+            {navItems.map(({ icon: Icon, label, active, link }) => (
               <button
                 key={label}
+                onClick={() => router.push(link)}
                 className={`
                   w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
                   transition-all duration-150 group relative
