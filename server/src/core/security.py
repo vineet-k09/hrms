@@ -8,8 +8,7 @@ import bcrypt
 
 from jose import jwt, JWTError
 
-from passlib.context import CryptContext
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request
 
 from sqlalchemy.orm import Session
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
