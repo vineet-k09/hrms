@@ -32,5 +32,5 @@ def get_db():
         yield db
     finally:
         db.close()
-
-print(Base.metadata.tables.keys())
+        
+print("Might be empty, no need to worry: " & Base.metadata.tables.keys())

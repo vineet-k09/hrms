@@ -25,7 +25,7 @@ class User(UUIDMixin, TimestampMixin, Base):
         String(50),
         unique=True,
         index=True,
-        nullable=False
+        nullable=True
     )
 
     password_hash = mapped_column(
