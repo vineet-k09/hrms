@@ -4,7 +4,9 @@
 		"server": "cd server && uvicorn main:app --reload",
 		"env:fedora": "source server/env/bin/activate",
 		"pg": "docker exec -it server-postgres-1 psql -U hrms -d hrms",
-		"dev": "concurrently \"npm run client\" \"npm run server\""
+		"dev": "concurrently \"npm run client\" \"npm run server\"",
+		"head": "cd server && alembic upgrade head",
+		"docker":"cd server && docker compose up -d"
 	},
 	"devDependencies": {
 		"concurrently": "^10.0.0"
