@@ -441,7 +441,7 @@ export default function LoginPage() {
 
           <div className="mt-6 pt-5 border-t border-[#E2E8F0] text-center">
             <p className="text-sm text-[#64748B]">
-              Don't have an account?{" "}
+              Don&apos;t have an account?{" "}
               <a
                 href="/signup"
                 onClick={(e) => {

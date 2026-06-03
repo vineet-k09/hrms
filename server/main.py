@@ -9,6 +9,10 @@ from src.modules.attendance.router import router as attendance_router
 from src.modules.employee.router import router as employee_router
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.modules.attendance.router import router as attendance_router
+from src.modules.employee.router import router as employee_router
+
+
 app = FastAPI()
 app.include_router(auth_routes_router)
 app.include_router(admin_routes_router)
@@ -30,6 +34,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(employee_router)
+app.include_router(attendance_router)
+
 
 @app.get("/")
 def root():
