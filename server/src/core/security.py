@@ -9,7 +9,7 @@ from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 
 from sqlalchemy.orm import Session
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
@@ -70,60 +70,36 @@ def create_access_token(
 # ─────────────────────────────────────────────
 # AUTH DEPENDENCY
 # ─────────────────────────────────────────────
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = HTTPBearer()
 
 def get_current_user(
-    request: Request,
-    db: Session = Depends(get_db),
+    token: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
 ):
-    token = request.cookies.get("access_token")
-
-    if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated",
-        )
-
     try:
+        print("Token received:", token.credentials)
         payload = jwt.decode(
-            token,
+            token.credentials,
             settings.SECRET_KEY,
-            algorithms=[settings.ALGORITHM],
+            algorithms=[settings.ALGORITHM]
         )
 
-        user_id = payload.get("sub")
+        user_id: str = payload.get("sub")
 
         if not user_id:
-            raise HTTPException(
-                status_code=401,
-                detail="Invalid token",
-            )
+            raise HTTPException(status_code=401, detail="Invalid token")
 
     except JWTError:
-        raise HTTPException(
-            status_code=401,
-            detail="Invalid or expired token",
-        )
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
-    user = (
-        db.query(User)
-        .filter(User.id == user_id)
-        .first()
-    )
+    user = db.query(User).filter(User.id == user_id).first()
 
-    if not user:
-        raise HTTPException(
-            status_code=401,
-            detail="User not found",
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=401,
-            detail="User inactive",
-        )
+    if not user or not user.is_active:
+        raise HTTPException(status_code=401, detail="User not found or inactive")
 
     return user
+
+
 
 
 
