@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
+import useAuth from "../hooks/useAuth";
 import {
   LayoutDashboard,
   Users,
@@ -309,14 +310,12 @@ function avatarColor(name: string) {
 export default function DashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
+  const { isAuthenticated } = useAuth();
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-
-    if (!token) {
+    if (!isAuthenticated) {
       router.replace("/auth/login");
     }
-  }, [router]);
+  }, [isAuthenticated]);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
