@@ -94,6 +94,12 @@ export default function LoginPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.access_token) {
+          // Store the token
+          localStorage.setItem("authToken", data.access_token);
+
+          // Store user info as a JSON string
+          localStorage.setItem("user", JSON.stringify(data.user));
+
           const role =
             data.user?.role ||
             (activeTab === "employee" ? "employee" : "candidate");
