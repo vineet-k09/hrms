@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
-import useAuth from "../hooks/useAuth";
+import useAuth from "../../hooks/useAuth";
 import {
   LayoutDashboard,
   Users,
@@ -312,10 +312,12 @@ export default function DashboardPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   useEffect(() => {
-    if (!isAuthenticated) {
+    const token = localStorage.getItem("authToken");
+
+    if (!token) {
       router.replace("/auth/login");
     }
-  }, [isAuthenticated]);
+  }, []);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",

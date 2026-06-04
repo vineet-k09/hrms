@@ -3,30 +3,31 @@
 import { useEffect, useState } from "react";
 import { AuthContext, User } from "../context/AuthContext";
 
-export default function AuthProvider({
-  children,
-}: {
+type Props = {
   children: React.ReactNode;
-}) {
+};
+
+export function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("authToken");
     const storedUser = localStorage.getItem("user");
 
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
+    if (storedToken) setToken(storedToken);
+    if (storedUser) setUser(JSON.parse(storedUser));
+
+    setIsHydrated(true);
   }, []);
 
-  const login = (token: string, user: User) => {
-    localStorage.setItem("authToken", token);
-    localStorage.setItem("user", JSON.stringify(user));
+  const login = (newToken: string, newUser: User) => {
+    localStorage.setItem("authToken", newToken);
+    localStorage.setItem("user", JSON.stringify(newUser));
 
-    setToken(token);
-    setUser(user);
+    setToken(newToken);
+    setUser(newUser);
   };
 
   const logout = () => {
@@ -42,12 +43,12 @@ export default function AuthProvider({
       value={{
         user,
         token,
+        isAuthenticated: !!token,
         login,
         logout,
-        isAuthenticated: !!token,
       }}
     >
-      {children}
+      {isHydrated ? children : null}
     </AuthContext.Provider>
   );
 }

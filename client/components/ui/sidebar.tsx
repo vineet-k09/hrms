@@ -17,6 +17,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import useAuth from "@/hooks/useAuth";
 import {
   LayoutDashboard,
   Users,
@@ -113,15 +114,15 @@ const ROLE_LABELS: Record<string, string> = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function initials(name: string) {
+function getInitials(name?: string) {
+  if (!name) return "U";
   return name
     .split(" ")
-    .map((n) => n[0] ?? "")
+    .map((n) => n[0])
     .join("")
     .toUpperCase()
     .slice(0, 2);
 }
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
 interface SidebarProps {
@@ -132,16 +133,8 @@ interface SidebarProps {
 export default function Sidebar({ open = true, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-
-  const [role, setRole] = useState("hr_recruiter");
-  const [name, setName] = useState("John Doe");
-
-  useEffect(() => {
-    const storedRole = localStorage.getItem("userRole") ?? "hr_recruiter";
-    const storedName = localStorage.getItem("userName") ?? "John Doe";
-    setRole(storedRole);
-    setName(storedName);
-  }, []);
+  const { user, logout } = useAuth();
+  const role = user?.role ?? "employee";
 
   const navItems = NAV[role] ?? NAV.employee;
   const roleLabel = ROLE_LABELS[role] ?? role;
@@ -233,16 +226,16 @@ export default function Sidebar({ open = true, onClose }: SidebarProps) {
             {/* Avatar circle with initials */}
             <div className="w-9 h-9 rounded-full bg-[#2563EB] flex items-center justify-center shrink-0">
               <span className="text-white text-xs font-bold">
-                {initials(name)}
+                {getInitials(user?.full_name ?? "")}
               </span>
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-medium truncate leading-tight">
-                {name}
+              <p className="text-white text-sm font-medium truncate">
+                {user?.full_name || "User"}
               </p>
-              <p className="text-slate-400 text-xs truncate mt-0.5">
-                {roleLabel}
+              <p className="text-slate-400 text-xs truncate">
+                {user?.role || "Role"}
               </p>
             </div>
 
@@ -259,9 +252,7 @@ export default function Sidebar({ open = true, onClose }: SidebarProps) {
                 <DropdownMenuItem
                   className="text-red-600 focus:text-red-600"
                   onClick={() => {
-                    localStorage.removeItem("authToken");
-                    localStorage.removeItem("userRole");
-
+                    logout();
                     router.replace("/auth/login");
                   }}
                 >
