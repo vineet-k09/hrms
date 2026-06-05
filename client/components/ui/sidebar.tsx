@@ -95,12 +95,12 @@ const NAV: Record<string, NavItem[]> = {
     { label: "Support", icon: HelpCircle, href: "/support" },
   ],
   candidate: [
-    { label: "My Applications", icon: FileText, href: "/applications" },
-    { label: "Interview Schedule", icon: Calendar, href: "/interviews" },
-    { label: "AI Interview", icon: Bot, href: "/ai-interview" },
-    { label: "Resume Status", icon: FileSearch, href: "/resume-status" },
-    { label: "Offer Letter", icon: Mail, href: "/offer-letter" },
-    { label: "My Profile", icon: User, href: "/profile" },
+    { label: "My Applications", icon: FileText, href: "/dashboard/candidate/my-application" },
+    { label: "Interview Schedule", icon: Calendar, href: "/dashboard/candidate/interview-schedule" },
+    { label: "AI Interview", icon: Bot, href: "/dashboard/candidate/ai-interview" },
+    { label: "Resume Status", icon: FileSearch, href: "/dashboard/candidate/resume-status" },
+    { label: "Offer Letter", icon: Mail, href: "/dashboard/candidate/offer-letter" },
+    { label: "My Profile", icon: User, href: "/dashboard/profile" },
   ],
 };
 
