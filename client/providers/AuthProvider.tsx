@@ -10,17 +10,22 @@ type Props = {
 export function AuthProvider({ children }: Props) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
+  const storedToken = localStorage.getItem("authToken");
+  const storedUser = localStorage.getItem("user");
 
-    if (storedToken) setToken(storedToken);
-    if (storedUser) setUser(JSON.parse(storedUser));
+  if (storedToken && storedUser) {
+    setToken(storedToken);
+    setUser(JSON.parse(storedUser));
+  } else {
+    setToken(null);
+    setUser(null);
+  }
 
-    setIsHydrated(true);
-  }, []);
+
+}, []);
 
   const login = (newToken: string, newUser: User) => {
     localStorage.setItem("authToken", newToken);
@@ -28,6 +33,7 @@ export function AuthProvider({ children }: Props) {
 
     setToken(newToken);
     setUser(newUser);
+    setLoading(false);
   };
 
   const logout = () => {
@@ -36,19 +42,12 @@ export function AuthProvider({ children }: Props) {
 
     setToken(null);
     setUser(null);
+    setLoading(false);
   };
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        token,
-        isAuthenticated: !!token,
-        login,
-        logout,
-      }}
-    >
-      {isHydrated ? children : null}
-    </AuthContext.Provider>
-  );
+   return (
+  <AuthContext.Provider value={{ user, token, loading, isAuthenticated: !!token, login, logout }}>
+    {children}
+  </AuthContext.Provider>
+);
 }

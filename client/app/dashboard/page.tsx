@@ -440,6 +440,14 @@ function initials(name: string) {
     .slice(0, 2);
 }
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return "Good morning";
+  if (hour < 18) return "Good afternoon";
+  return "Good evening";
+};
+
 const avatarColors = [
   "bg-blue-500",
   "bg-purple-500",
@@ -832,7 +840,7 @@ export default function DashboardPage() {
                 {isEmployee && (
                   <>
                     <h2 className="text-white text-2xl sm:text-3xl font-bold mb-1">
-                      Good morning, {firstName} 👋
+                       {getGreeting()}, {firstName} 👋
                     </h2>
                     <p className="text-blue-200 text-sm max-w-md">
                       You have{" "}
