@@ -44,7 +44,7 @@ export default function LoginPage() {
       hr_recruiter: "/dashboard",
       senior_manager: "/dashboard",
       admin: "/dashboard",
-      candidate: "/candidate/dashboard",
+      candidate: "/dashboard",
     };
 
     const redirectPath = roleRedirects[role] || "/dashboard";

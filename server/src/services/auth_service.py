@@ -28,7 +28,7 @@ def signup_user(db: Session, data: SignupRequest) -> User:
         full_name=data.full_name,
         email=data.email,
         employee_id=data.employee_id,
-        role=data.role,
+        role=data.role.lower(),  # Ensure it is lowercase
         password_hash=hash_password(data.password),
     )
 
