@@ -9,7 +9,7 @@ class AIEvaluation(UUIDMixin, TimestampMixin, Base):
 
     application_id = mapped_column(
         ForeignKey("applications.id"),
-        unique=True
+        
     )
 
     resume_score = mapped_column(Float)
