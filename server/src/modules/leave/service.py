@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from src.models.leave_request import LeaveRequest
+from src.modules.employee.repository import EmployeeRepository
 
 from src.models.enums import (
     LeaveStatus
@@ -17,6 +18,26 @@ from .schemas import (
 
 
 class LeaveService:
+
+    @staticmethod
+    def _resolve_employee_id(
+        db,
+        employee_id: UUID | str
+    ):
+        if not isinstance(employee_id, str):
+            return employee_id
+
+        employee = EmployeeRepository.get_by_code(
+            db,
+            employee_id
+        )
+
+        if not employee:
+            raise ValueError(
+                "Employee not found"
+            )
+
+        return employee.id
 
     @staticmethod
     def get_all(db):
@@ -60,8 +81,14 @@ class LeaveService:
         db,
         payload: LeaveCreate
     ):
+        data = payload.model_dump()
+        data["employee_id"] = LeaveService._resolve_employee_id(
+            db,
+            data["employee_id"]
+        )
+
         leave = LeaveRequest(
-            **payload.model_dump(),
+            **data,
             status=LeaveStatus.PENDING
         )
 
@@ -138,7 +165,10 @@ class LeaveService:
             )
 
         leave.status = LeaveStatus.APPROVED
-        leave.approved_by = approver_id
+        leave.approved_by = LeaveService._resolve_employee_id(
+            db,
+            approver_id
+        )
 
         LeaveRepository.save(db)
 
@@ -161,7 +191,10 @@ class LeaveService:
             )
 
         leave.status = LeaveStatus.REJECTED
-        leave.approved_by = approver_id
+        leave.approved_by = LeaveService._resolve_employee_id(
+            db,
+            approver_id
+        )
 
         LeaveRepository.save(db)
 

@@ -7,15 +7,7 @@ import { Bell, Menu, ArrowLeft, Calendar } from "lucide-react";
 import Sidebar from "@/components/ui/sidebar";
 import { leaveTypes } from "@/app/types";
 import useAuth from "@/hooks/useAuth";
-
-function initials(name: string) {
-	return name
-		.split(" ")
-		.map((n) => n[0])
-		.join("")
-		.toUpperCase()
-		.slice(0, 2);
-}
+import { initials } from "@/app/dashboard/page";
 
 export default function LeaveApplicationPage() {
 	const router = useRouter();
@@ -73,12 +65,17 @@ export default function LeaveApplicationPage() {
 			return;
 		}
 
+		if (!user?.employee_id) {
+			setError("Employee information is missing. Please log in again.");
+			return;
+		}
+
 		setLoading(true);
 
 		try {
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 			await axios.post(`${apiUrl}/leave`, {
-				employee_id: user?.employee_id,
+				employee_id: user.employee_id,
 				leave_type: formData.leave_type,
 				start_date: formData.start_date,
 				end_date: formData.end_date,
@@ -97,7 +94,16 @@ export default function LeaveApplicationPage() {
 				router.push("/leave");
 			}, 2000);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "An error occurred");
+			if (axios.isAxiosError(err)) {
+				const detail = err.response?.data?.detail;
+				setError(
+					Array.isArray(detail)
+						? detail.map((item) => item.msg).join(", ")
+						: detail || err.message,
+				);
+			} else {
+				setError(err instanceof Error ? err.message : "An error occurred");
+			}
 		} finally {
 			setLoading(false);
 		}

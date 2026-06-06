@@ -431,7 +431,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function initials(name: string) {
+export function initials(name: string) { // getting used in leave page also
   return name
     .split(" ")
     .map((n) => n[0])
@@ -856,7 +856,7 @@ export default function DashboardPage() {
                 {isCandidate && (
                   <>
                     <h2 className="text-white text-2xl sm:text-3xl font-bold mb-1">
-                      Hey {firstName}, you're on track! 🚀
+                      Hey {firstName}, you&apos;re on track! 🚀
                     </h2>
                     <p className="text-blue-200 text-sm max-w-md">
                       You have{" "}

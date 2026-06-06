@@ -1,9 +1,24 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
+from src.models.employee import Employee
+from src.models.enums import EmployeeStatus, UserRole
 from src.models.user import User
 from src.schemas.user import SignupRequest
 from src.core.security import hash_password, verify_password, create_access_token
+
+
+def _split_full_name(full_name: str) -> tuple[str, str]:
+    parts = full_name.strip().split(maxsplit=1)
+
+    if len(parts) == 1:
+        return parts[0], ""
+
+    return parts[0], parts[1]
+
+
+def _designation_for_role(role: str) -> str:
+    return role.replace("_", " ").title()
 
 
 # ─────────────────────────────────────────────
@@ -24,17 +39,45 @@ def signup_user(db: Session, data: SignupRequest) -> User:
             detail="Employee ID already exists"
         )
 
+    is_employee_role = data.role.value != "candidate"
+
+    if is_employee_role and db.query(Employee).filter(
+        Employee.employee_code == data.employee_id
+    ).first():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Employee record already exists"
+        )
+
     new_user = User(
         full_name=data.full_name,
         email=data.email,
         employee_id=data.employee_id,
-        role=data.role.lower(),  # Ensure it is lowercase
+        role=UserRole(data.role.value),
         password_hash=hash_password(data.password),
     )
 
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.add(new_user)
+        db.flush()
+
+        if is_employee_role:
+            first_name, last_name = _split_full_name(data.full_name)
+            employee = Employee(
+                user_id=new_user.id,
+                employee_code=data.employee_id,
+                first_name=first_name,
+                last_name=last_name,
+                designation=_designation_for_role(data.role.value),
+                status=EmployeeStatus.ACTIVE
+            )
+            db.add(employee)
+
+        db.commit()
+        db.refresh(new_user)
+    except Exception:
+        db.rollback()
+        raise
 
     return new_user
 

@@ -20,6 +20,12 @@ s3 = boto3.client(
 
 
 async def upload_pdf(file: UploadFile):
+    if not BUCKET_NAME:
+        raise HTTPException(
+            status_code=500,
+            detail="Storage bucket is not configured",
+        )
+
     if file.content_type != "application/pdf":
         raise HTTPException(
             status_code=400,
@@ -29,6 +35,7 @@ async def upload_pdf(file: UploadFile):
     key = f"pdfs/{uuid.uuid4()}.pdf"
 
     try:
+        file.file.seek(0)
         s3.upload_fileobj(
             file.file,
             BUCKET_NAME,
@@ -51,6 +58,12 @@ async def upload_pdf(file: UploadFile):
 
 
 def delete_file(key: str):
+    if not BUCKET_NAME:
+        raise HTTPException(
+            status_code=500,
+            detail="Storage bucket is not configured",
+        )
+
     try:
         s3.delete_object(
             Bucket=BUCKET_NAME,
@@ -67,53 +80,3 @@ def delete_file(key: str):
             status_code=500,
             detail=str(e),
         )
-    
-
-
-# from fastapi import APIRouter, File, UploadFile
-
-# from helper.storage import upload_pdf
-
-# router = APIRouter()
-
-
-# @router.post("/upload-pdf")
-# async def upload_pdf_endpoint(
-#     file: UploadFile = File(...)
-# ):
-#     url = await upload_pdf(file)
-
-#     return {
-#         "success": True,
-#         "url": url
-#     }
-#  res[pseeee]
-
-# from fastapi import APIRouter, File, UploadFile
-
-# from app.storage import upload_pdf, delete_file
-
-# router = APIRouter(prefix="/files", tags=["Files"])
-
-
-# @router.post("/upload")
-# async def upload(file: UploadFile = File(...)):
-#     return await upload_pdf(file)
-
-# {
-#   "key": "pdfs/fd6cb92e-cbf7-42a8-a34e-2bc6c865b1a0.pdf",
-#   "url": "https://s3.bucket0.com/mybucket/pdfs/fd6cb92e-cbf7-42a8-a34e-2bc6c865b1a0.pdf"
-# }
-# @router.delete("/{key:path}")
-# async def delete(key: str):
-#     return delete_file(key)
-# {
-#   "success": true,
-#   "url": "https://s3.bucket0.com/mybucket/pdfs/3a5f1c9f-d6d7-4ef3-b56b-f0c8f24d1d4d.pdf"
-# }
-
-# DELETE /files/pdfs/fd6cb92e-cbf7-42a8-a34e-2bc6c865b1a0.pdf
-# {
-#   "success": true,
-#   "deleted_key": "pdfs/fd6cb92e-cbf7-42a8-a34e-2bc6c865b1a0.pdf"
-# }

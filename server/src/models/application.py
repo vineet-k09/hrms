@@ -27,3 +27,13 @@ class Application(UUIDMixin, TimestampMixin, Base):
         String,
         nullable=True
     )
+
+    resume_url = mapped_column(
+        String,
+        nullable=True
+    )
+
+    resume_key = mapped_column(
+        String,
+        nullable=True
+    )

@@ -20,6 +20,14 @@ class EmployeeRepository:
         )
 
     @staticmethod
+    def get_by_code(db: Session, employee_code: str):
+        return (
+            db.query(Employee)
+            .filter(Employee.employee_code == employee_code)
+            .first()
+        )
+
+    @staticmethod
     def create(db: Session, employee: Employee):
         db.add(employee)
         db.commit()

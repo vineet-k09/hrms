@@ -69,7 +69,7 @@ export default function LeaveReviewPage() {
 	useEffect(() => {
 		const fetchLeaves = async () => {
 			try {
-				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 				const { data } = await axios.get(`${apiUrl}/leave/pending`);
 				// TODO: Filter by manager's juniors once auth context is available
 				setLeaves(data);
@@ -86,7 +86,7 @@ export default function LeaveReviewPage() {
 	const handleApprove = async (leaveId: string) => {
 		setActionInProgress(leaveId);
 		try {
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 			await axios.patch(`${apiUrl}/leave/${leaveId}/approve`, {
 				approved_by: user?.employee_id,
 			});
@@ -106,7 +106,7 @@ export default function LeaveReviewPage() {
 	const handleReject = async (leaveId: string) => {
 		setActionInProgress(leaveId);
 		try {
-			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 			await axios.patch(`${apiUrl}/leave/${leaveId}/reject`, {
 				approved_by: user?.employee_id,
 			});

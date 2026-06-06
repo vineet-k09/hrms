@@ -67,11 +67,11 @@ def extract_pdfs_from_zip(zip_file: UploadFile) -> tuple[str, List[str]]:
 
         # Check PDF count
         num_pdfs = len(pdf_paths)
-        if num_pdfs < 5  or num_pdfs > 40:
+        if num_pdfs < 1 or num_pdfs > 40:
             shutil.rmtree(temp_dir, ignore_errors=True)
             raise HTTPException(
                 status_code=400,
-                detail=f"Number of PDF files must be between 25 and 40. Found {num_pdfs}."
+                detail=f"Number of PDF files must be between 1 and 40. Found {num_pdfs}."
             )
 
         if not pdf_paths:

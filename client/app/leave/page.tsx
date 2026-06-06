@@ -77,7 +77,7 @@ export default function LeavePage() {
 	useEffect(() => {
 		const fetchLeaves = async () => {
 			try {
-				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 				const { data } = await axios.get(`${apiUrl}/leave`);
 				setLeaves(data);
 			} catch (error) {
@@ -290,6 +290,7 @@ export default function LeavePage() {
 										start_date,
 										end_date,
 										status,
+										employee_name
 									}) => {
 										const startDate = new Date(start_date);
 										const endDate = new Date(end_date);
@@ -308,7 +309,7 @@ export default function LeavePage() {
 												</div>
 												<div className="flex-1 min-w-0">
 													<p className="text-sm font-medium text-[#1E293B]">
-														{leave_type}
+														{employee_name} -  {leave_type} LEAVE
 													</p>
 													<p className="text-xs text-[#64748B]">
 														{startDate.toLocaleDateString()} to{" "}

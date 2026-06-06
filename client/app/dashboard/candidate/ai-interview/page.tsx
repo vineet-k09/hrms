@@ -1,15 +1,9 @@
-/**
- * Next.js: app/dashboard/candidate/ai-interview/page.tsx
- * Add "use client"; at the top — HIGHEST PRIORITY UI
- */
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
-  Bot, Mic, MicOff, Video, VideoOff, Send, Play, Square,
-  Volume2, Wifi, Clock, Star, TrendingUp, MessageSquare,
-  AlertCircle, CheckCircle2, ChevronRight, Zap, Brain,
-  BarChart3, Shield, Eye,
+  Bot, Mic, MicOff, Video, VideoOff, Send, Play, Wifi, Clock, Star, MessageSquare,
+  AlertCircle, CheckCircle2, ChevronRight, Zap, Brain, Shield, Eye,
 } from "lucide-react";
 
 // ─── Mock conversation ────────────────────────────────────────────────────────
