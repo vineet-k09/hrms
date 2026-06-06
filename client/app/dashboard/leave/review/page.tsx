@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Leave } from "../types";
+import { Leave } from "../../../types";
 
 import {
 	Bell,

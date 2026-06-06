@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Leave } from "./types";
+import { Leave } from "../../types";
 
 import {
 	Bell,
@@ -18,7 +18,6 @@ import {
 import { Input } from "@/components/ui/input";
 
 import Sidebar from "@/components/ui/sidebar";
-
 
 function StatusBadge({ status }: { status: string }) {
 	const map: Record<string, { label: string; cls: string }> = {
@@ -97,7 +96,7 @@ export default function LeavePage() {
 	return (
 		<div className="min-h-screen flex bg-[#F8FAFC] font-sans">
 			{/* ── SIDEBAR ── */}
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+			<Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
 			{/* ── MAIN CONTENT ── */}
 			<div className="flex-1 flex flex-col min-w-0 overflow-hidden">

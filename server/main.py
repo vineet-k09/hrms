@@ -2,8 +2,6 @@ from fastapi import FastAPI
 import uvicorn
 
 from src.middleware.cors import setup_middlewares
-# from fastapi.middleware.cors import CORSMiddleware
-
 
 # Common routes
 from src.routes.auth import router as auth_routes_router
@@ -32,18 +30,6 @@ app.include_router(hr_routes_router)
 app.include_router(employee_router)
 app.include_router(attendance_router)
 app.include_router(leave_router)
-
-# Handle CORS
-
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=[
-#         "http://localhost:3000"
-#     ],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
 
 @app.get("/")
 def root():

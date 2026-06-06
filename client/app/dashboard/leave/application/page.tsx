@@ -1,16 +1,10 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-	Bell,
-	Menu,
-	ArrowLeft,
-	Calendar,
-} from "lucide-react";
+import { Bell, Menu, ArrowLeft, Calendar } from "lucide-react";
 
 import Sidebar from "@/components/ui/sidebar";
-import { leaveTypes } from "../types";
-
+import { leaveTypes } from "../../../types";
 
 function initials(name: string) {
 	return name
@@ -79,8 +73,7 @@ export default function LeaveApplicationPage() {
 		setLoading(true);
 
 		try {
-			const apiUrl =
-				process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+			const apiUrl = process.env.questionSchema || "http://localhost:3000/api";
 			// TODO: Get actual employee_id from auth context
 			const res = await fetch(`${apiUrl}/leave`, {
 				method: "POST",
@@ -119,7 +112,7 @@ export default function LeaveApplicationPage() {
 	return (
 		<div className="min-h-screen flex bg-[#F8FAFC] font-sans">
 			{/* ── SIDEBAR ── */}
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+			<Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
 			{/* ── MAIN CONTENT ── */}
 			<div className="flex-1 flex flex-col min-w-0 overflow-hidden">
