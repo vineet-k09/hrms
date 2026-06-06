@@ -705,14 +705,14 @@ const ROLE_LABELS: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       router.replace("/auth/login");
     }
-  }, []);
+  });
 
   const role = user?.role;
   const isHR = role === "hr_recruiter" || role === "admin";
