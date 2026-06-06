@@ -2,7 +2,7 @@
 
 ## SETUP
 
-## Client
+### Client
 
 ```bash
 cd client
@@ -10,7 +10,7 @@ npm i
 npm run dev
 ```
 
-## Server
+### Server
 
 ```bash
 cd server
@@ -19,7 +19,7 @@ pip install -r requirements.txt
 env\Scripts\activate.bat
 ```
 
-## Docker
+### Docker
 
 ```bash
 cd server
@@ -149,11 +149,11 @@ cd scripts
 py seed.py
 ```
 
-### Useful commands
+## Useful commands
 
 ***A few repetetive commands are added to package.json for fast dev as well.***
 
-## Intialize Alembic
+### Intialize Alembic
 ```bash
 alembic init alembic
 ```
@@ -172,7 +172,7 @@ alembic revision --autogenerate -m "any migration message"
 alembic upgrade head
 ```
 
-## devs
+## Devs
 
 [vineet-k09](https://github.com/vineet-k09),
 PranavBj2406
