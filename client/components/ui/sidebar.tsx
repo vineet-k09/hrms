@@ -15,7 +15,6 @@
  *   onClick={() => navigate(item.href)
  */
 
-import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import {

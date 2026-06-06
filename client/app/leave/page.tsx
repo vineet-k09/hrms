@@ -1,8 +1,9 @@
 "use client";
 
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Leave } from "../../types";
+import { Leave } from "../types";
 
 import {
 	Bell,
@@ -18,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import Sidebar from "@/components/ui/sidebar";
+import useAuth from "@/hooks/useAuth";
 
 function StatusBadge({ status }: { status: string }) {
 	const map: Record<string, { label: string; cls: string }> = {
@@ -57,9 +59,12 @@ export default function LeavePage() {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [leaves, setLeaves] = useState<Leave[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [userProfile, setUserProfile] = useState({
-		name: "John Doe",
-		role: "HR Recruiter",
+
+	const { user } = useAuth();
+	const role = user?.role;
+	const [userProfile] = useState({
+		name: user?.full_name,
+		role: role,
 	});
 
 	const today = new Date().toLocaleDateString("en-US", {
@@ -72,16 +77,11 @@ export default function LeavePage() {
 	useEffect(() => {
 		const fetchLeaves = async () => {
 			try {
-				const apiUrl =
-					process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-				const res = await fetch(`${apiUrl}/leave`);
-				if (res.ok) {
-					const data = await res.json();
-					setLeaves(data);
-				}
+				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+				const { data } = await axios.get(`${apiUrl}/leave`);
+				setLeaves(data);
 			} catch (error) {
 				console.error("Failed to fetch leaves:", error);
-				// TODO: Add error toast/notification
 			} finally {
 				setLoading(false);
 			}
@@ -137,7 +137,7 @@ export default function LeavePage() {
 						<div className="flex items-center gap-2.5 pl-2 border-l border-[#E2E8F0]">
 							<div className="w-8 h-8 rounded-full bg-[#2563EB] flex items-center justify-center">
 								<span className="text-white text-xs font-bold">
-									{initials(userProfile.name)}
+									{initials(userProfile.name ?? "")}
 								</span>
 							</div>
 							<div className="hidden sm:block">
@@ -169,18 +169,18 @@ export default function LeavePage() {
 								<div className="flex items-center gap-3 mb-2">
 									<div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center border-2 border-white/30">
 										<span className="text-white text-sm font-bold">
-											{initials(userProfile.name)}
+											{initials(userProfile.name ?? "")}
 										</span>
 									</div>
 									<div>
 										<span className="inline-flex items-center px-2.5 py-0.5 text-xs font-medium bg-blue-500/30 text-blue-200 rounded-full border border-blue-400/30 mb-1">
-											{userProfile.role}
+											{user?.role}
 										</span>
 										<p className="text-blue-200 text-xs">{today}</p>
 									</div>
 								</div>
 								<h2 className="text-white text-2xl sm:text-3xl font-bold mb-1">
-									Welcome back, {userProfile.name.split(" ")[0]} 👋
+									Welcome back, {user?.full_name} 👋
 								</h2>
 								<p className="text-blue-200 text-sm max-w-md">
 									You have{" "}
@@ -290,7 +290,6 @@ export default function LeavePage() {
 										start_date,
 										end_date,
 										status,
-										reason,
 									}) => {
 										const startDate = new Date(start_date);
 										const endDate = new Date(end_date);

@@ -1,10 +1,12 @@
 "use client";
+import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Bell, Menu, ArrowLeft, Calendar } from "lucide-react";
 
 import Sidebar from "@/components/ui/sidebar";
-import { leaveTypes } from "../../../types";
+import { leaveTypes } from "@/app/types";
+import useAuth from "@/hooks/useAuth";
 
 function initials(name: string) {
 	return name
@@ -20,6 +22,7 @@ export default function LeaveApplicationPage() {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [userProfile] = useState({ name: "John Doe", role: "HR Recruiter" });
+	const { user } = useAuth();
 
 	const [formData, setFormData] = useState({
 		leave_type: "CASUAL",
@@ -73,23 +76,14 @@ export default function LeaveApplicationPage() {
 		setLoading(true);
 
 		try {
-			const apiUrl = process.env.questionSchema || "http://localhost:3000/api";
-			// TODO: Get actual employee_id from auth context
-			const res = await fetch(`${apiUrl}/leave`, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					employee_id: "00000000-0000-0000-0000-000000000000",
-					leave_type: formData.leave_type,
-					start_date: formData.start_date,
-					end_date: formData.end_date,
-					reason: formData.reason,
-				}),
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			await axios.post(`${apiUrl}/leave`, {
+				employee_id: user?.employee_id,
+				leave_type: formData.leave_type,
+				start_date: formData.start_date,
+				end_date: formData.end_date,
+				reason: formData.reason,
 			});
-
-			if (!res.ok) {
-				throw new Error("Failed to submit leave request");
-			}
 
 			setSuccess("Leave request submitted successfully!");
 			setFormData({

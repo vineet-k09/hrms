@@ -1,8 +1,9 @@
 "use client";
 
+import axios from "axios";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Leave } from "../../../types";
+import { Leave } from "@/app/types";
 
 import {
 	Bell,
@@ -14,6 +15,7 @@ import {
 	Calendar,
 } from "lucide-react";
 import Sidebar from "@/components/ui/sidebar";
+import useAuth from "@/hooks/useAuth";
 
 function StatusBadge({ status }: { status: string }) {
 	const map: Record<string, { label: string; cls: string }> = {
@@ -55,6 +57,7 @@ export default function LeaveReviewPage() {
 	const [loading, setLoading] = useState(true);
 	const [userProfile] = useState({ name: "John Doe", role: "HR Recruiter" });
 	const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+	const { user } = useAuth();
 
 	const today = new Date().toLocaleDateString("en-US", {
 		weekday: "long",
@@ -66,14 +69,10 @@ export default function LeaveReviewPage() {
 	useEffect(() => {
 		const fetchLeaves = async () => {
 			try {
-				const apiUrl =
-					process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-				const res = await fetch(`${apiUrl}/leave/pending`);
-				if (res.ok) {
-					const data = await res.json();
-					// TODO: Filter by manager's juniors once auth context is available
-					setLeaves(data);
-				}
+				const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+				const { data } = await axios.get(`${apiUrl}/leave/pending`);
+				// TODO: Filter by manager's juniors once auth context is available
+				setLeaves(data);
 			} catch (error) {
 				console.error("Failed to fetch leaves:", error);
 			} finally {
@@ -87,24 +86,16 @@ export default function LeaveReviewPage() {
 	const handleApprove = async (leaveId: string) => {
 		setActionInProgress(leaveId);
 		try {
-			const apiUrl =
-				process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-			// TODO: Get actual approver_id from auth context
-			const res = await fetch(`${apiUrl}/leave/${leaveId}/approve`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					approved_by: "00000000-0000-0000-0000-000000000000",
-				}),
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			await axios.patch(`${apiUrl}/leave/${leaveId}/approve`, {
+				approved_by: user?.employee_id,
 			});
 
-			if (res.ok) {
-				setLeaves(
-					leaves.map((l) =>
-						l.id === leaveId ? { ...l, status: "APPROVED" } : l,
-					),
-				);
-			}
+			setLeaves(
+				leaves.map((l) =>
+					l.id === leaveId ? { ...l, status: "APPROVED" } : l,
+				),
+			);
 		} catch (error) {
 			console.error("Failed to approve leave:", error);
 		} finally {
@@ -115,24 +106,16 @@ export default function LeaveReviewPage() {
 	const handleReject = async (leaveId: string) => {
 		setActionInProgress(leaveId);
 		try {
-			const apiUrl =
-				process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-			// TODO: Get actual approver_id from auth context
-			const res = await fetch(`${apiUrl}/leave/${leaveId}/reject`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					approved_by: "00000000-0000-0000-0000-000000000000",
-				}),
+			const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://0.0.0.0:8000";
+			await axios.patch(`${apiUrl}/leave/${leaveId}/reject`, {
+				approved_by: user?.employee_id,
 			});
 
-			if (res.ok) {
-				setLeaves(
-					leaves.map((l) =>
-						l.id === leaveId ? { ...l, status: "REJECTED" } : l,
-					),
-				);
-			}
+			setLeaves(
+				leaves.map((l) =>
+					l.id === leaveId ? { ...l, status: "REJECTED" } : l,
+				),
+			);
 		} catch (error) {
 			console.error("Failed to reject leave:", error);
 		} finally {
