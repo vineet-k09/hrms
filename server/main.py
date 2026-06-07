@@ -10,7 +10,7 @@ from src.routes.employee import router as employee_routes_router
 from src.routes.candidate import router as candidate_routes_router
 from src.routes.hr import router as hr_routes_router
 from src.routes.recruitment import router as recruitment_router
-
+from src.routes.interview_router import router as interview_router
 # Module Routes
 from src.modules.attendance.router import router as attendance_router
 from src.modules.employee.router import router as employee_router
@@ -27,6 +27,7 @@ app.include_router(employee_routes_router)
 app.include_router(candidate_routes_router)
 app.include_router(hr_routes_router)
 app.include_router(recruitment_router)
+app.include_router(interview_router)
 
 # Module routes
 app.include_router(employee_router)
