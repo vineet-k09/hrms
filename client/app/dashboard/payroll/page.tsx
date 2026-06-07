@@ -15,7 +15,7 @@ import { useState } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import useAuth from "@/hooks/useAuth";
 import {
-  DollarSign, Download, TrendingUp, TrendingDown, ChevronRight,
+  Download, TrendingUp, TrendingDown,
   FileText, Calendar, Banknote, Receipt, ShieldCheck, HeartPulse,
   Building2, BadgePercent, Printer, Info,
 } from "lucide-react";
@@ -58,8 +58,6 @@ const HISTORY = [
   { month: 2, year: 2026, basic_salary: 70000, bonus: 3000,  deductions: 10800 },
   { month: 1, year: 2026, basic_salary: 70000, bonus: 0,     deductions: 10800 },
 ];
-
-const CURRENT = HISTORY[0];
 
 // ─── Mini donut SVG ───────────────────────────────────────────────────────────
 function Donut({

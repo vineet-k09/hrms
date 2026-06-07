@@ -1424,7 +1424,7 @@ export default function DashboardPage() {
                     Senior Engineer
                   </p>
                   <p className="text-xs text-[#64748B] mt-0.5">
-                    MyGreenhouse · Full Time
+                    MyTeamHQ · Full Time
                   </p>
                   <div className="mt-3 pt-3 border-t border-emerald-100 flex items-center justify-between">
                     <span className="text-xs text-[#64748B]">Deadline</span>

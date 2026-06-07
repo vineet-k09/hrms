@@ -172,12 +172,12 @@ export default function SignupPage() {
             <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
               <div className="w-5 h-5 rounded-sm bg-white" />
             </div>
-            <span className="text-white font-bold text-xl tracking-tight">MyGreenhouse</span>
+            <span className="text-white font-bold text-xl tracking-tight">MyTeamHQ</span>
           </div>
 
           <div className="mb-8">
             <h1 className="text-white text-4xl font-bold leading-tight mb-4">
-              Join Your Team on MyGreenhouse
+              Join Your Team on MyTeamHQ
             </h1>
             <p className="text-blue-200 text-base leading-relaxed">
               Set up your account and get instant access to all HR tools your organization uses.
@@ -227,7 +227,7 @@ export default function SignupPage() {
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <div className="w-4 h-4 rounded-sm bg-white" />
           </div>
-          <span className="text-[#1E293B] font-bold text-lg">MyGreenhouse</span>
+          <span className="text-[#1E293B] font-bold text-lg">MyTeamHQ</span>
         </div>
 
         <div
@@ -246,7 +246,7 @@ export default function SignupPage() {
             <>
               <div className="mb-6">
                 <h2 className="text-[28px] font-bold text-[#1E293B]">Create Your Account</h2>
-                <p className="text-[#64748B] text-sm mt-1">Fill in your details to get started with MyGreenhouse</p>
+                <p className="text-[#64748B] text-sm mt-1">Fill in your details to get started with MyTeamHQ</p>
               </div>
 
               {apiError && (

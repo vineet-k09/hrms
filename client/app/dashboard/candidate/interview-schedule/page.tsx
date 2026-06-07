@@ -31,7 +31,7 @@ const interviews = [
     id: 3, company: "DataPulse", role: "Data Scientist",
     date: "Jun 8, 2026", time: "11:00 AM", duration: "90 min",
     type: "ai", interviewers: ["AI Interviewer"],
-    platform: "MyGreenhouse AI", status: "upcoming", isToday: false,
+    platform: "MyTeamHQ AI", status: "upcoming", isToday: false,
     link: "#",
   },
   {

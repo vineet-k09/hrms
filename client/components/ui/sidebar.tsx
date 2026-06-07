@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MyGreenhouse – Role-aware Sidebar
+ * MyTeamHQ – Role-aware Sidebar
  *
  * Next.js usage (swap the two imports below):
  *   import { usePathname, useRouter } from "next/navigation";
@@ -32,7 +32,6 @@ import {
   FileText,
   Mail,
   User,
-  HelpCircle,
   X,
   MoreHorizontal,
   LogOut,
@@ -49,58 +48,75 @@ import {
 type NavItem = { label: string; icon: React.ElementType; href: string };
 
 const NAV: Record<string, NavItem[]> = {
-  admin: [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Employees", icon: Users, href: "/employees" },
-    { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/leave" },
-    { label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
-    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
-    { label: "Payroll", icon: DollarSign, href: "/payroll" },
-    { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
-    { label: "Resume Ranking", icon: FileSearch, href: "/dashboard/resume-ranking" },
-    { label: "AI Interview Setup", icon: Bot, href: "/ai-interview-setup" },
-    { label: "Reports", icon: BarChart2, href: "/reports" },
-    
-  ],
-  hr_recruiter: [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Employees", icon: Users, href: "/employees" },
-    { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
-    { label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
-    { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
-    { label: "Resume Ranking", icon: FileSearch, href: "/dashboard/resume-ranking" },
-    { label: "AI Interview Setup", icon: Bot, href: "/ai-interview-setup" },
-    { label: "Reports", icon: BarChart2, href: "/reports" },
-  
-  ],
-  senior_manager: [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "Workforce Overview", icon: Users, href: "/workforce" },
-    { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
-    { label: "Payroll Overview", icon: DollarSign, href: "/dashboard/payroll" },
-    { label: "Recruitment Pipeline", icon: Briefcase, href: "/recruitment" },
-    { label: "AI Interview Results", icon: Bot, href: "/ai-results" },
-    { label: "Analytics", icon: TrendingUp, href: "/analytics" },
-    
-  ],
-  employee: [
-    { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
-    { label: "My Profile", icon: User, href: "/dashboard/profile" },
-    { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
-    { label: "My Payslips", icon: DollarSign, href: "/dashboard/payroll" },
-  ],
-  candidate: [
-    { label: "My Applications", icon: FileText, href: "/dashboard/candidate/my-application" },
-    { label: "Interview Schedule", icon: Calendar, href: "/dashboard/candidate/interview-schedule" },
-    { label: "AI Interview", icon: Bot, href: "/dashboard/candidate/ai-interview" },
-    { label: "Resume Status", icon: FileSearch, href: "/dashboard/candidate/resume-status" },
-    { label: "Offer Letter", icon: Mail, href: "/dashboard/candidate/offer-letter" },
-    { label: "My Profile", icon: User, href: "/dashboard/profile" },
-  ],
+	admin: [
+		{ label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+		{ label: "Employees", icon: Users, href: "/dashboard/employees" },
+		{ label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
+		{ label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
+		{ label: "Recruitment", icon: Briefcase, href: "/recruitment" },
+		{
+			label: "Resume Ranking",
+			icon: FileSearch,
+			href: "/dashboard/resume-ranking",
+		},
+		{ label: "Reports", icon: BarChart2, href: "dashboard/reports" },
+	],
+	hr_recruiter: [
+		{ label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+		{ label: "Employees", icon: Users, href: "/dashboard/employees" },
+		{ label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
+		{ label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
+		{ label: "Recruitment", icon: Briefcase, href: "/recruitment" },
+		{
+			label: "Resume Ranking",
+			icon: FileSearch,
+			href: "/dashboard/resume-ranking",
+		},
+		{ label: "Reports", icon: BarChart2, href: "dashboard/reports" },
+	],
+	senior_manager: [
+		{ label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+		{ label: "Workforce Overview", icon: Users, href: "/workforce" },
+		{ label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
+		{ label: "Payroll Overview", icon: DollarSign, href: "/dashboard/payroll" },
+		{ label: "Recruitment Pipeline", icon: Briefcase, href: "/recruitment" },
+		{ label: "Analytics", icon: TrendingUp, href: "/analytics" },
+		{ label: "Reports", icon: BarChart2, href: "dashboard/reports" },
+	],
+	employee: [
+		{ label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
+		{ label: "My Profile", icon: User, href: "/dashboard/profile" },
+		{ label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
+		{ label: "My Payslips", icon: DollarSign, href: "/dashboard/payroll"},
+	],
+	candidate: [
+		{
+			label: "My Applications",
+			icon: FileText,
+			href: "/dashboard/candidate/my-application",
+		},
+		{
+			label: "Interview Schedule",
+			icon: Calendar,
+			href: "/dashboard/candidate/interview-schedule",
+		},
+		{
+			label: "AI Interview",
+			icon: Bot,
+			href: "/dashboard/candidate/ai-interview",
+		},
+		{
+			label: "Resume Status",
+			icon: FileSearch,
+			href: "/dashboard/candidate/resume-status",
+		},
+		{
+			label: "Offer Letter",
+			icon: Mail,
+			href: "/dashboard/candidate/offer-letter",
+		},
+		{ label: "My Profile", icon: User, href: "/dashboard/profile" },
+	],
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -166,7 +182,7 @@ export default function Sidebar({ open = true, onClose }: SidebarProps) {
             <div className="w-4 h-4 rounded-sm bg-white" />
           </div>
           <span className="text-white font-bold text-[17px] tracking-tight">
-            MyGreenhouse
+            MyTeamHQ
           </span>
           {onClose && (
             <button

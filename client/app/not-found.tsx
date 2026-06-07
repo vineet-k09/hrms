@@ -45,7 +45,7 @@ export default function NotFound() {
 
         {/* Subtle branding footer */}
         <div className="mt-16 text-xs text-[#64748B]/50 uppercase tracking-widest font-medium">
-          MyGreenhouse HRMS
+          MyTeamHQ HRMS
         </div>
       </div>
     </div>

@@ -154,7 +154,7 @@ export default function LoginPage() {
               <div className="w-5 h-5 rounded-sm bg-white" />
             </div>
             <span className="text-white font-bold text-xl tracking-tight">
-              MyGreenhouse
+              MyTeamHQ
             </span>
           </div>
 
@@ -242,7 +242,7 @@ export default function LoginPage() {
           <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <div className="w-4 h-4 rounded-sm bg-white" />
           </div>
-          <span className="text-[#1E293B] font-bold text-lg">MyGreenhouse</span>
+          <span className="text-[#1E293B] font-bold text-lg">MyTeamHQ</span>
         </div>
 
         <div

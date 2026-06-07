@@ -7,8 +7,7 @@ import { useState } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
   FileText, CheckCircle2, Clock, Upload, Bot, Brain,
-  User, Star, TrendingUp, Eye, Download, RefreshCw,
-  AlertCircle, Zap, BarChart3,
+  User, Star, Eye, Download, AlertCircle, Zap, BarChart3,
 } from "lucide-react";
 
 // ─── Pipeline ─────────────────────────────────────────────────────────────────

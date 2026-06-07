@@ -7,8 +7,7 @@ import { useState } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
   Building2, MapPin, Calendar, DollarSign, Briefcase, Clock,
-  CheckCircle2, XCircle, Download, Mail, Shield, Star,
-  ChevronRight, AlertCircle, FileText, Users, Zap,
+  CheckCircle2, XCircle, Download, Mail, Shield, AlertCircle, Users, Zap,
 } from "lucide-react";
 
 // ─── Mock offer data ──────────────────────────────────────────────────────────
@@ -78,7 +77,7 @@ export default function OfferLetterPage() {
               <XCircle className="w-5 h-5 text-[#EF4444] shrink-0" />
               <div>
                 <p className="text-sm font-semibold text-red-700">Offer Declined</p>
-                <p className="text-xs text-red-500 mt-0.5">Thank you for your time. We'll keep your profile for future opportunities.</p>
+                <p className="text-xs text-red-500 mt-0.5">Thank you for your time. We&apos;ll keep your profile for future opportunities.</p>
               </div>
             </div>
           )}
@@ -113,7 +112,7 @@ export default function OfferLetterPage() {
                   <p className="text-sm text-[#1E293B]">Dear <strong>Sam Wilson</strong>,</p>
                   <p className="text-sm text-[#64748B] mt-2 leading-relaxed">
                     We are pleased to extend this formal offer of employment for the position of{" "}
-                    <strong className="text-[#1E293B]">Senior Software Engineer</strong> at TechNova Inc. We were impressed by your experience and believe you'll make a valuable contribution to our Platform Engineering team.
+                    <strong className="text-[#1E293B]">Senior Software Engineer</strong> at TechNova Inc. We were impressed by your experience and believe you&apos;ll make a valuable contribution to our Platform Engineering team.
                   </p>
                 </div>
 

@@ -18,7 +18,6 @@ import {
   AlertCircle,
   Loader2,
   RotateCcw,
-  Briefcase,
   Users,
   Award,
   TrendingUp,
@@ -146,8 +145,7 @@ export default function ResumeRankerPage() {
     day: "numeric",
     year: "numeric",
   });
-
-  const firstName = user?.full_name?.split(" ")[0] ?? "there";
+  
   const userInitials = initials(user?.full_name ?? "U");
   const userAvatarColor = avatarColor(user?.full_name ?? "U");
 
@@ -473,7 +471,6 @@ export default function ResumeRankerPage() {
                   const expanded = expandedIdx === i;
                   const scoreColor = SCORE_COLOR(c.score);
                   const scoreBarColor = SCORE_BAR_COLOR(c.score);
-                  const scoreBgColor = SCORE_BG_COLOR(c.score);
 
                   return (
                     <div

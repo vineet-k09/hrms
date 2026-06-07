@@ -15,12 +15,12 @@ class EmployeeCreate(BaseModel):
 
     first_name: str
     last_name: str
-    phone: str
+    phone: str | None
 
     designation: str
 
     join_date: date
-    salary: Decimal
+    salary: Decimal | None
 
     status: EmployeeStatus = EmployeeStatus.ACTIVE
 
@@ -48,7 +48,7 @@ class EmployeeResponse(BaseModel):
     first_name: str
     last_name: str
 
-    phone: str
+    phone: str | None
 
     designation: str
 

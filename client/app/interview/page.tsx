@@ -1,7 +1,4 @@
 'use client';
-// export default function Interview() {
-// 	return <></>
-// }
 import { questions as qs } from "@/data/questions";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
