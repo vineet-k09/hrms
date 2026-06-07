@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
   Bot, Mic, MicOff, Video, VideoOff, Send, Play, Wifi, Clock, Star, MessageSquare,
-  AlertCircle, CheckCircle2, ChevronRight, Zap, Brain, Shield, Eye, Loader2, RotateCcw
+  AlertCircle, CheckCircle2, ChevronRight, Zap, Brain, Shield, Eye, RotateCcw,
+  Briefcase, User, Code, BarChart3, Users
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -30,7 +31,16 @@ interface EvalItem {
   icon: React.ElementType;
 }
 
-// ─── Config ───────────────────────────────────────────────────────────────────
+type RoleOption = "SDE-1" | "SDE-2" | "SDE-3" | "HR" | "Analyst";
+
+const ROLES: { id: RoleOption; label: string; icon: React.ElementType; desc: string }[] = [
+  { id: "SDE-1", label: "SDE-1", icon: Code, desc: "Entry-level software engineer" },
+  { id: "SDE-2", label: "SDE-2", icon: Code, desc: "Mid-level software engineer" },
+  { id: "SDE-3", label: "SDE-3", icon: Code, desc: "Senior software engineer" },
+  { id: "HR", label: "HR", icon: Users, desc: "Human resources interview" },
+  { id: "Analyst", label: "Analyst", icon: BarChart3, desc: "Data/Business analyst" },
+];
+
 const FASTAPI_URL = process.env.NEXT_PUBLIC_FASTAPI_URL || "http://localhost:8000";
 
 // ─── Circular Score ─────────────────────────────────────────────────────────
@@ -56,6 +66,9 @@ function CircleScore({ score, color, size = 80 }: { score: number; color: string
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AIInterviewPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Role selection
+  const [selectedRole, setSelectedRole] = useState<RoleOption | null>(null);
   
   // Interview state
   const [phase, setPhase] = useState<"setup" | "interview" | "processing" | "results">("setup");
@@ -97,7 +110,6 @@ export default function AIInterviewPage() {
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [phase]);
 
-  // Speech recognition init
   useEffect(() => {
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (SpeechRecognition) {
@@ -169,6 +181,11 @@ export default function AIInterviewPage() {
 
   // ─── Start Interview ────────────────────────────────────────────────────────
   async function handleStart() {
+    if (!selectedRole) {
+      setError("Please select a role first!");
+      return;
+    }
+
     setError("");
     const hasCamera = await startCamera();
     if (!hasCamera) return;
@@ -177,7 +194,6 @@ export default function AIInterviewPage() {
     setMessages([]);
     setElapsed(0);
 
-    // Get first AI question
     setIsLoading(true);
     try {
       const res = await fetch(`${FASTAPI_URL}/interview/chat`, {
@@ -185,8 +201,8 @@ export default function AIInterviewPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           candidateId: "CAND-001",
-          role: "Senior Software Engineer",
-          jobDescription: "We are looking for a Senior Software Engineer with strong system design, microservices, and cloud experience. Must have 5+ years experience with Kubernetes, Docker, and distributed systems.",
+          role: selectedRole,
+          jobDescription: `We are hiring for ${selectedRole} position.`,
           messages: []
         })
       });
@@ -222,28 +238,21 @@ export default function AIInterviewPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           candidateId: "CAND-001",
-          role: "Senior Software Engineer",
-          jobDescription: "We are looking for a Senior Software Engineer with strong system design, microservices, and cloud experience. Must have 5+ years experience with Kubernetes, Docker, and distributed systems.",
+          role: selectedRole,
+          jobDescription: `We are hiring for ${selectedRole} position.`,
           messages: apiMessages
         })
       });
       const data = await res.json();
 
       if (data.isComplete || data.questionNumber >= 5) {
-        // Interview done → score it
         await finishInterview([...newMessages, { role: "ai", text: data.question, time: getCurrentTime() }]);
       } else {
         setMessages([...newMessages, { role: "ai", text: data.question, time: getCurrentTime() }]);
       }
-  } catch (err: any) {
-    if (err.message?.includes('429') || err.message?.includes('rate limit')) {
-        setError("Too many requests. Waiting 5 seconds... retrying automatically.");
-        setTimeout(() => handleSend(), 5000); // Auto-retry after 5s
-    } else {
-        setError("Failed to get response. Try again.");
-    }
-}
-    finally {
+    } catch (err) {
+      setError("Failed to get next question. Try again.");
+    } finally {
       setIsLoading(false);
     }
   }
@@ -266,23 +275,21 @@ export default function AIInterviewPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           candidateId: "CAND-001",
-          role: "Senior Software Engineer",
-          jobDescription: "We are looking for a Senior Software Engineer with strong system design, microservices, and cloud experience. Must have 5+ years experience with Kubernetes, Docker, and distributed systems.",
+          role: selectedRole,
+          jobDescription: `We are hiring for ${selectedRole} position.`,
           messages: apiMessages
         })
       });
       const data: InterviewResult = await res.json();
       setResult(data);
 
-      // Map result to eval items
       setEvalItems([
         { label: "Confidence", score: Math.round(data.score * 0.9), color: "#2563EB", icon: Shield },
         { label: "Communication", score: Math.round(data.score * 0.95), color: "#10B981", icon: MessageSquare },
-        { label: "Technical", score: data.score, color: "#7C3ED", icon: Brain },
+        { label: "Technical", score: data.score, color: "#7C3AED", icon: Brain },
         { label: "Relevance", score: Math.round(data.score * 0.92), color: "#F59E0B", icon: Star },
       ]);
 
-      // Build feedback from strengths & improvements
       const fb = [
         ...data.strengths.map(s => ({ type: "positive", text: s })),
         ...data.improvements.map(i => ({ type: "neutral", text: i })),
@@ -307,6 +314,7 @@ export default function AIInterviewPage() {
 
   function handleReset() {
     setPhase("setup");
+    setSelectedRole(null);
     setMessages([]);
     setInput("");
     setResult(null);
@@ -335,7 +343,9 @@ export default function AIInterviewPage() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-2xl font-bold text-[#1E293B]">AI Interview</h1>
-              <p className="text-sm text-[#64748B] mt-0.5">Senior Software Engineer · TechNova Inc.</p>
+              <p className="text-sm text-[#64748B] mt-0.5">
+                {selectedRole ? `${selectedRole} Position` : "Select a role to begin"}
+              </p>
             </div>
             {phase !== "setup" && phase !== "results" && (
               <div className="flex items-center gap-4">
@@ -358,7 +368,7 @@ export default function AIInterviewPage() {
                   <Star className="w-10 h-10 text-white" />
                 </div>
                 <h1 className="text-3xl font-bold text-[#1E293B] mb-1">Interview Complete</h1>
-                <p className="text-[#64748B] text-sm mb-6">Senior Software Engineer · CAND-001</p>
+                <p className="text-[#64748B] text-sm mb-6">{selectedRole} Position · CAND-001</p>
                 
                 <div className="text-6xl font-bold text-[#2563EB] mb-2">
                   {result.score}<span className="text-2xl text-[#CBD5E1]">/100</span>
@@ -384,7 +394,7 @@ export default function AIInterviewPage() {
                 </button>
               </div>
 
-              {/* Score breakdown in results */}
+              {/* Score breakdown */}
               <div className="bg-white rounded-xl border border-[#E2E8F0] p-5 mb-4">
                 <h3 className="text-sm font-semibold text-[#1E293B] mb-4">Score Breakdown</h3>
                 <div className="grid grid-cols-2 gap-3">
@@ -499,16 +509,39 @@ export default function AIInterviewPage() {
                       </div>
                       <div>
                         <p className="text-white text-lg font-bold">Ready for your AI Interview?</p>
-                        <p className="text-slate-400 text-sm mt-1">Maya will ask adaptive questions and evaluate your responses with Gemini AI</p>
+                        <p className="text-slate-400 text-sm mt-1">Select a role and Maya will ask adaptive questions powered by Gemini AI</p>
                       </div>
-                      <div className="flex flex-wrap justify-center gap-2 mt-1">
-                        {["Adaptive Questions", "Real-time Scoring", "Voice Input"].map(f => (
-                          <span key={f} className="px-3 py-1 rounded-full bg-white/10 text-slate-300 text-xs">{f}</span>
-                        ))}
+
+                      {/* ROLE SELECTOR */}
+                      <div className="grid grid-cols-1 gap-2 w-full max-w-xs mt-2">
+                        {ROLES.map((role) => {
+                          const Icon = role.icon;
+                          const isSelected = selectedRole === role.id;
+                          return (
+                            <button
+                              key={role.id}
+                              onClick={() => { setSelectedRole(role.id); setError(""); }}
+                              className={`flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
+                                isSelected 
+                                  ? "bg-blue-600 text-white border border-blue-500" 
+                                  : "bg-white/10 text-slate-300 border border-white/10 hover:bg-white/20"
+                              }`}
+                            >
+                              <Icon className="w-5 h-5 shrink-0" />
+                              <div>
+                                <p className="text-sm font-semibold">{role.label}</p>
+                                <p className="text-xs opacity-70">{role.desc}</p>
+                              </div>
+                              {isSelected && <CheckCircle2 className="w-4 h-4 ml-auto" />}
+                            </button>
+                          );
+                        })}
                       </div>
+
                       <button
                         onClick={handleStart}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 text-white font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/30 mt-2"
+                        disabled={!selectedRole}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-blue-500 to-blue-600 text-white font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/30 mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Play className="w-5 h-5" /> Start Interview
                       </button>
@@ -603,7 +636,7 @@ export default function AIInterviewPage() {
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-[#1E293B]">{phase === "interview" ? "Analyzing..." : "Not Started"}</p>
-                      <p className="text-xs text-[#64748B] mt-0.5">{phase === "interview" ? "AI evaluating responses" : "Start interview to see score"}</p>
+                      <p className="text-xs text-[#64748B] mt-0.5">{phase === "interview" ? "AI evaluating responses" : "Select role & start interview"}</p>
                       {phase === "interview" && (
                         <div className="mt-2 h-1.5 bg-[#F1F5F9] rounded-full overflow-hidden">
                           <div className="h-full bg-[#2563EB] rounded-full animate-pulse" style={{ width: `${Math.min(100, messages.length * 15)}%` }} />

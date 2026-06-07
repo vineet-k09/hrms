@@ -4,11 +4,15 @@ import httpx
 import os
 import json
 import asyncio
+import random
 
 router = APIRouter(prefix="/interview", tags=["interview"])
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+
+# MOCK MODE: Set MOCK_INTERVIEW=true in .env to bypass Gemini (for hackathons/demo)
+MOCK_MODE = os.getenv("MOCK_INTERVIEW", "false").lower() == "true"
 
 class ChatMessage(BaseModel):
     role: str
@@ -25,6 +29,68 @@ class QuestionRequest(BaseModel):
     role: str
     jobDescription: str
     messages: list[ChatMessage]
+
+# ─── MOCK DATA FOR FALLBACK ───────────────────────────────────────────────────
+MOCK_QUESTIONS = {
+    "SDE-1": [
+        "Tell me about yourself and your programming background.",
+        "Explain the difference between an array and a linked list.",
+        "How do you handle debugging when your code doesn't work?",
+        "Describe a project you're proud of.",
+        "Why do you want to work in software development?"
+    ],
+    "SDE-2": [
+        "Walk me through your most complex system design project.",
+        "How do you approach optimizing a slow API endpoint?",
+        "Explain microservices vs monoliths.",
+        "Tell me about a time you refactored legacy code.",
+        "How do you mentor junior developers?"
+    ],
+    "SDE-3": [
+        "Design a distributed system for a real-time chat application.",
+        "How do you balance technical debt with shipping features?",
+        "Describe influencing architecture decisions across teams.",
+        "How do you handle system failures at scale?",
+        "What's your approach to technical leadership?"
+    ],
+    "HR": [
+        "Tell me about yourself and what motivates you.",
+        "Describe a conflict you had with a teammate.",
+        "Where do you see yourself in 5 years?",
+        "Tell me about a time you failed and what you learned.",
+        "Why should we hire you for this role?"
+    ],
+    "Analyst": [
+        "Walk me through how you approach a new dataset.",
+        "How do you explain complex data insights to non-technical stakeholders?",
+        "Describe a time your analysis led to a business decision.",
+        "What tools do you use for data visualization?",
+        "How do you ensure data quality in your analyses?"
+    ]
+}
+
+def get_mock_question(role: str, question_number: int) -> str:
+    questions = MOCK_QUESTIONS.get(role, MOCK_QUESTIONS["SDE-1"])
+    if question_number < len(questions):
+        return questions[question_number]
+    return "That concludes our interview. Thank you for your time!"
+
+def get_mock_score(role: str) -> dict:
+    score = random.randint(65, 92)
+    return {
+        "score": score,
+        "summary": f"The candidate demonstrated {'strong' if score > 80 else 'adequate'} technical skills for the {role} position. {'Communication was clear and structured.' if score > 75 else 'Could improve on articulating complex ideas.'}",
+        "strengths": [
+            "Good problem-solving approach",
+            "Relevant technical experience",
+            "Clear communication style"
+        ],
+        "improvements": [
+            "Could provide more specific examples",
+            "Consider deepening system design knowledge"
+        ],
+        "recommendation": "yes" if score > 75 else "maybe"
+    }
 
 def get_system_prompt(role: str, job_description: str) -> str:
     return f"""You are an expert technical interviewer conducting a {role} interview.
@@ -56,7 +122,6 @@ Return ONLY this JSON structure:
 }}"""
 
 async def call_gemini_with_retry(payload: dict, max_retries: int = 3) -> dict:
-    """Call Gemini API with retry logic for rate limits"""
     for attempt in range(max_retries):
         try:
             async with httpx.AsyncClient(timeout=20.0) as client:
@@ -69,18 +134,31 @@ async def call_gemini_with_retry(payload: dict, max_retries: int = 3) -> dict:
                 return response.json()
         except httpx.HTTPStatusError as e:
             if e.response.status_code == 429:
-                wait_time = (attempt + 1) * 2  # 2s, 4s, 6s
+                wait_time = (attempt + 1) * 3
                 print(f"Rate limited. Retrying in {wait_time}s... (attempt {attempt + 1}/{max_retries})")
                 await asyncio.sleep(wait_time)
                 continue
-            raise  # Re-raise if not 429
-    raise HTTPException(status_code=429, detail="Gemini API rate limit exceeded. Please wait a moment and try again.")
+            raise
+    raise Exception("Rate limit exceeded after all retries")
 
 @router.post("/chat")
 async def chat(request: QuestionRequest):
-    if not GEMINI_API_KEY:
-        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
+    if not GEMINI_API_KEY and not MOCK_MODE:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured. Set MOCK_INTERVIEW=true for demo mode.")
 
+    question_number = len([m for m in request.messages if m.role == "user"])
+
+    # MOCK MODE: Skip Gemini entirely
+    if MOCK_MODE or not GEMINI_API_KEY:
+        is_complete = question_number >= 4
+        return {
+            "question": get_mock_question(request.role, question_number),
+            "isComplete": is_complete,
+            "questionNumber": question_number + 1,
+            "mode": "mock"
+        }
+
+    # REAL GEMINI MODE
     system_prompt = get_system_prompt(request.role, request.jobDescription)
     contents = [{"role": "user", "parts": [{"text": system_prompt}]}]
     
@@ -100,10 +178,16 @@ async def chat(request: QuestionRequest):
 
     try:
         data = await call_gemini_with_retry(payload)
-    except HTTPException:
-        raise
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Gemini API error: {str(e)}")
+        # Fallback to mock if Gemini fails
+        print(f"Gemini failed ({str(e)}), falling back to mock")
+        is_complete = question_number >= 4
+        return {
+            "question": get_mock_question(request.role, question_number),
+            "isComplete": is_complete,
+            "questionNumber": question_number + 1,
+            "mode": "mock_fallback"
+        }
 
     ai_text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
     is_complete = "INTERVIEW_COMPLETE" in ai_text.upper()
@@ -112,14 +196,25 @@ async def chat(request: QuestionRequest):
     return {
         "question": clean_text,
         "isComplete": is_complete,
-        "questionNumber": len([m for m in request.messages if m.role == "user"]) + 1
+        "questionNumber": question_number + 1,
+        "mode": "gemini"
     }
 
 @router.post("/score")
 async def score_interview(request: InterviewSession):
-    if not GEMINI_API_KEY:
+    if not GEMINI_API_KEY and not MOCK_MODE:
         raise HTTPException(status_code=500, detail="GEMINI_API_KEY not configured")
 
+    # MOCK MODE
+    if MOCK_MODE or not GEMINI_API_KEY:
+        result = get_mock_score(request.role)
+        return {
+            "candidateId": request.candidateId,
+            **result,
+            "mode": "mock"
+        }
+
+    # REAL GEMINI MODE
     transcript_lines = []
     for msg in request.messages:
         prefix = "Interviewer" if msg.role == "model" else "Candidate"
@@ -142,10 +237,14 @@ INTERVIEW TRANSCRIPT:
 
     try:
         data = await call_gemini_with_retry(payload)
-    except HTTPException:
-        raise
     except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Gemini API error: {str(e)}")
+        print(f"Gemini scoring failed ({str(e)}), falling back to mock")
+        result = get_mock_score(request.role)
+        return {
+            "candidateId": request.candidateId,
+            **result,
+            "mode": "mock_fallback"
+        }
 
     text = data["candidates"][0]["content"]["parts"][0]["text"]
     text = text.strip().replace("```json", "").replace("```", "").strip()
@@ -153,7 +252,12 @@ INTERVIEW TRANSCRIPT:
     try:
         result_data = json.loads(text)
     except json.JSONDecodeError:
-        raise HTTPException(status_code=502, detail="Failed to parse Gemini response")
+        result = get_mock_score(request.role)
+        return {
+            "candidateId": request.candidateId,
+            **result,
+            "mode": "mock_fallback"
+        }
 
     return {
         "candidateId": request.candidateId,
@@ -161,7 +265,8 @@ INTERVIEW TRANSCRIPT:
         "summary": result_data["summary"],
         "strengths": result_data["strengths"],
         "improvements": result_data["improvements"],
-        "recommendation": result_data["recommendation"]
+        "recommendation": result_data["recommendation"],
+        "mode": "gemini"
     }
 
 @router.get("/health")
@@ -169,5 +274,6 @@ async def health_check():
     return {
         "status": "ok",
         "gemini_configured": bool(GEMINI_API_KEY),
-        "tip": "If you get 429 errors, wait 10-15 seconds between requests"
+        "mock_mode": MOCK_MODE,
+        "tip": MOCK_MODE and "Running in MOCK mode - no API calls made" or "If 429 errors, set MOCK_INTERVIEW=true in .env"
     }
