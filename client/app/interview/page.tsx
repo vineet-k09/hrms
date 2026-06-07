@@ -4,7 +4,6 @@
 // }
 import { questions as qs } from "@/data/questions";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useReactMediaRecorder } from "react-media-recorder";
 import {
 	answers,
 	questionSchema,
@@ -13,6 +12,16 @@ import {
 	SpeechRecognitionEvent,
 	SpeechRecognitionErrorEvent,
 } from "@/app/types";
+
+// useReactMediaRecorder uses Web Workers which are not available during SSR/Node evaluation.
+// This guarded require prevents the crash on the server and provides a no-op hook for the initial server render.
+const { useReactMediaRecorder } = typeof window !== 'undefined'
+	? require("react-media-recorder")
+	: { useReactMediaRecorder: () => ({ 
+		startRecording: () => {}, 
+		stopRecording: () => {}, 
+		mediaBlobUrl: null 
+	}) };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -25,15 +34,15 @@ declare global {
 
 export default function Interview() {
 	const questions = useMemo(() => generateInterview(qs), []);
-	console.log("qs", qs);
 	console.log("generated questions", questions);
 
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [answers, setAnswers] = useState<answers[]>([]);
-	const [isListening, setIsListening] = useState(false);
-	const [interimTranscript, setInterimTranscript] = useState("");
+	const [isListening, setIsListening] = useState(false); // Controls recording state
+	const [isTranscribing, setIsTranscribing] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [interviewComplete, setInterviewComplete] = useState(false);
+	const [isMediaRecorderSupported, setIsMediaRecorderSupported] = useState(true); // New state to track MediaRecorder support
 
 	const answersRef = useRef<answers[]>([]);
 	const startedAtRef = useRef(new Date());
@@ -41,10 +50,38 @@ export default function Interview() {
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const questionStartTimeRef = useRef<number>(0);
 	const streamRef = useRef<MediaStream | null>(null);
+	const lastProcessedBlobRef = useRef<string | null>(null);
+	const [stream, setStream] = useState<MediaStream | null>(null);
 
-	const { startRecording, stopRecording, mediaBlobUrl } = useReactMediaRecorder({
+	// Conditionally initialize useReactMediaRecorder
+	const mediaRecorder = useReactMediaRecorder({
 		audio: true,
 	});
+	const { startRecording, stopRecording, mediaBlobUrl } = mediaRecorder;
+
+	// Keep track of latest hook functions to avoid stale closures in event handlers
+	const startRecordingRef = useRef(startRecording);
+	const stopRecordingRef = useRef(stopRecording);
+
+	useEffect(() => {
+		startRecordingRef.current = startRecording;
+		stopRecordingRef.current = stopRecording;
+	}, [startRecording, stopRecording]);
+
+	// Ensure video attaches when stream or ref is ready
+	useEffect(() => {
+		if (videoRef.current && stream) {
+			videoRef.current.srcObject = stream;
+		}
+	}, [stream]);
+
+	// Check for Worker support on mount
+	useEffect(() => {
+		if (typeof Worker === 'undefined') {
+			console.warn("Web Workers are not supported in this environment. Media recording might not work as expected.");
+			setIsMediaRecorderSupported(false);
+		}
+	}, []);
 
 	// Initialize speech recognition
 	useEffect(() => {
@@ -56,10 +93,7 @@ export default function Interview() {
 				});
 
 				streamRef.current = stream;
-
-				if (videoRef.current) {
-					videoRef.current.srcObject = stream;
-				}
+				setStream(stream);
 
 				// Setup speech recognition
 				const SpeechRecognition =
@@ -73,20 +107,14 @@ export default function Interview() {
 					recognition.onstart = () => {
 						setIsListening(true);
 						questionStartTimeRef.current = Date.now();
-						startRecording();
+						// Use direct Worker check and Ref to prevent stale closures/re-renders
+						if (typeof Worker !== 'undefined') {
+							startRecordingRef.current();
+						}
 					};
 
 					recognition.onresult = (event: SpeechRecognitionEvent) => {
-						let interim = "";
-						for (let i = event.results.length - 1; i >= 0; i--) {
-							const transcript = event.results[i][0].transcript;
-							if (event.results[i].isFinal) {
-								// Final result received
-							} else {
-								interim += transcript;
-							}
-						}
-						setInterimTranscript(interim);
+						// No-op: we rely on server-side transcription of the audio blob
 					};
 
 					recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
@@ -111,19 +139,13 @@ export default function Interview() {
 			streamRef.current?.getTracks().forEach((track) => track.stop());
 			recognitionRef.current?.abort();
 		};
-	}, [startRecording]);
-
-	// Auto-start first question
-	useEffect(() => {
-		if (questions.length > 0 && currentIndex === 0 && answers.length === 0) {
-			setTimeout(() => askQuestion(), 500);
-		}
-	}, [questions]);
+	}, []); // Only run setup once on mount to prevent flashing/restarting the stream
 
 	// Handle media blob when recording stops
 	useEffect(() => {
-		if (mediaBlobUrl && !isListening) {
+		if (mediaBlobUrl && !isListening && mediaBlobUrl !== lastProcessedBlobRef.current) {
 			transcribeAudio(mediaBlobUrl);
+			lastProcessedBlobRef.current = mediaBlobUrl;
 		}
 	}, [mediaBlobUrl, isListening]);
 
@@ -143,6 +165,7 @@ export default function Interview() {
 	}
 
 	async function transcribeAudio(blobUrl: string) {
+		setIsTranscribing(true);
 		try {
 			const blob = await fetch(blobUrl).then((res) => res.blob());
 			const base64Audio = await blobToBase64(blob);
@@ -166,6 +189,8 @@ export default function Interview() {
 		} catch (error) {
 			console.error("Transcription error:", error);
 			proceedToNextQuestion();
+		} finally {
+			setIsTranscribing(false);
 		}
 	}
 
@@ -180,10 +205,11 @@ export default function Interview() {
 		});
 	}
 
-	function askQuestion() {
+	// This function is now only responsible for starting the listening process
+	// for the *current* question. It is called by the "Start Speaking" button.
+	function startSpeakingForQuestion() {
 		if (currentIndex >= questions.length) {
 			completeInterview();
-			return;
 		}
 
 		const question = questions[currentIndex];
@@ -194,22 +220,18 @@ export default function Interview() {
 
 	function startListening() {
 		if (!recognitionRef.current) return;
-
-		setInterimTranscript("");
 		recognitionRef.current.start();
-
-		// Auto-stop listening after 30 seconds
-		setTimeout(() => {
-			stopListening();
-		}, 30000);
 	}
 
 	function stopListening() {
 		if (!recognitionRef.current) return;
 
 		recognitionRef.current.stop();
-		stopRecording();
+		if (isMediaRecorderSupported) { // Only stop recording if supported
+			stopRecordingRef.current();
+		}
 		setIsListening(false);
+		setIsTranscribing(true);
 	}
 
 	function saveAnswer(transcript: string) {
@@ -235,7 +257,8 @@ export default function Interview() {
 			completeInterview();
 		} else {
 			setCurrentIndex(nextIndex);
-			setTimeout(() => askQuestion(), 1000);
+			// Just update the index to show the next question.
+			// The user must click "Start Speaking" manually to continue.
 		}
 	}
 
@@ -322,8 +345,12 @@ export default function Interview() {
 	}
 
 	return (
-		<div className="p-8 max-w-2xl mx-auto suppressHydrationWarning">
+		<div className="p-8 max-w-2xl mx-auto" suppressHydrationWarning>
 			<div className="bg-white rounded-lg shadow-lg p-6">
+				<video ref={videoRef} autoPlay playsInline muted className="w-full h-48 bg-gray-800 rounded-lg mb-4"></video>
+
+				{/* Question Progress */}
+
 				<div className="mb-4">
 					<h2 className="text-2xl font-bold">
 						Question {Math.min(currentIndex + 1, questions.length)} /{" "}
@@ -339,10 +366,12 @@ export default function Interview() {
 					</div>
 				</div>
 
+				{/* Current Question */}
 				<p className="text-lg mb-6 font-semibold">
 					{questions[currentIndex]?.question}
 				</p>
 
+				{/* Action Buttons */}
 				<div className="mb-6">
 					{isListening ? (
 						<div className="bg-red-100 border-2 border-red-500 rounded-lg p-4">
@@ -350,16 +379,14 @@ export default function Interview() {
 								<div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
 								<span className="font-semibold">Listening...</span>
 							</div>
-							<p className="text-gray-700 italic">
-								{interimTranscript || "Waiting for your response..."}
-							</p>
 						</div>
 					) : (
 						<button
-							onClick={startListening}
-							className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold"
+							onClick={startSpeakingForQuestion}
+							disabled={isTranscribing}
+							className={`${isTranscribing ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'} text-white px-6 py-3 rounded-lg font-semibold transition-colors`}
 						>
-							Start Speaking
+							{isTranscribing ? "Saving Response..." : "Start Speaking"}
 						</button>
 					)}
 				</div>
@@ -373,6 +400,7 @@ export default function Interview() {
 					</button>
 				)}
 
+				{/* Recorded Answers Summary */}
 				<div className="mt-6">
 					<h3 className="font-semibold mb-2">Answers Recorded: {answers.length}</h3>
 					<div className="space-y-2">
