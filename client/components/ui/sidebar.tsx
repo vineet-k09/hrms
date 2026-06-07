@@ -15,7 +15,6 @@
  *   onClick={() => navigate(item.href)
  */
 
-import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import useAuth from "@/hooks/useAuth";
 import {
@@ -56,6 +55,8 @@ const NAV: Record<string, NavItem[]> = {
     { label: "Attendance", icon: Calendar, href: "/attendance" },
     { label: "Leave", icon: ClipboardList, href: "/leave" },
     { label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
+    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
+    { label: "Payroll", icon: DollarSign, href: "/payroll" },
     { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
     { label: "Resume Ranking", icon: FileSearch, href: "/dashboard/resume-ranking" },
     { label: "AI Interview Setup", icon: Bot, href: "/ai-interview-setup" },
@@ -66,7 +67,7 @@ const NAV: Record<string, NavItem[]> = {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Employees", icon: Users, href: "/employees" },
     { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
     { label: "Payroll", icon: DollarSign, href: "/dashboard/payroll" },
     { label: "Recruitment", icon: Briefcase, href: "/recruitment" },
     { label: "Resume Ranking", icon: FileSearch, href: "/dashboard/resume-ranking" },
@@ -78,7 +79,7 @@ const NAV: Record<string, NavItem[]> = {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "Workforce Overview", icon: Users, href: "/workforce" },
     { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
     { label: "Payroll Overview", icon: DollarSign, href: "/dashboard/payroll" },
     { label: "Recruitment Pipeline", icon: Briefcase, href: "/recruitment" },
     { label: "AI Interview Results", icon: Bot, href: "/ai-results" },
@@ -89,7 +90,7 @@ const NAV: Record<string, NavItem[]> = {
     { label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { label: "My Profile", icon: User, href: "/dashboard/profile" },
     { label: "Attendance", icon: Calendar, href: "/attendance" },
-    { label: "Leave", icon: ClipboardList, href: "/leave" },
+    { label: "Leave", icon: ClipboardList, href: "/dashboard/leave" },
     { label: "My Payslips", icon: DollarSign, href: "/dashboard/payroll" },
   ],
   candidate: [

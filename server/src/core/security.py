@@ -2,7 +2,6 @@
 
 from datetime import datetime, timedelta
 from typing import Optional
-from urllib import request
 
 import bcrypt
 
@@ -16,8 +15,6 @@ from src.core.config import settings
 from src.database import get_db
 from src.models.user import User
 from src.models.enums import UserRole
-
-
 
 # ─────────────────────────────────────────────
 # PASSWORD HASHING
@@ -42,6 +39,7 @@ def verify_password(
             plain_password.encode("utf-8"),
             hashed_password.encode("utf-8")
         )
+        
     except (ValueError, TypeError):
         return False
 
@@ -75,27 +73,19 @@ def create_access_token(
 oauth2_scheme = HTTPBearer()
 
 def get_current_user(
-    token: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
+    credentials: HTTPAuthorizationCredentials = Depends(oauth2_scheme),
     db: Session = Depends(get_db)
 ):
-    token = request.cookies.get("access_token")
-
-    if not token:
-        raise HTTPException(
-            status_code=401,
-            detail="Not authenticated",
-        )
-
     try:
-        print("Token received:", token.credentials)
+        token = credentials.credentials
         payload = jwt.decode(
-            token.credentials,
+            token,
             settings.SECRET_KEY,
             algorithms=[settings.ALGORITHM],
         )
 
-        user_id: str = payload.get("sub")
-        role: str = payload.get("role")
+        user_id: str = str(payload.get("sub")) 
+        role: str = str(payload.get("role"))
 
         if not user_id:
             raise HTTPException(

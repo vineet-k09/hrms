@@ -5,24 +5,16 @@ import { useEffect } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import useAuth from "../../hooks/useAuth";
 import {
-  LayoutDashboard,
   Users,
   CalendarCheck,
   ClipboardList,
-  DollarSign,
-  UserSearch,
   Bot,
-  Settings,
-  LogOut,
   Bell,
   Search,
   TrendingUp,
   TrendingDown,
   Briefcase,
-  ChevronRight,
   Menu,
-  X,
-  MoreHorizontal,
   Clock,
   Cake,
   Video,
@@ -36,24 +28,8 @@ import {
   ThumbsUp,
   ThumbsDown,
 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
-const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", active: true },
-  { icon: Users, label: "Employees" },
-  { icon: CalendarCheck, label: "Attendance" },
-  { icon: ClipboardList, label: "Leave" },
-  { icon: DollarSign, label: "Payroll" },
-  { icon: UserSearch, label: "Recruitment" },
-  { icon: Bot, label: "AI Evaluation" },
-  { icon: Settings, label: "Settings" },
-];
+import { Input } from "@/components/ui/input";
 
 // ─── Role-specific mock data ─────────────────────────────────────────────────
 
@@ -455,7 +431,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function initials(name: string) {
+export function initials(name: string) { // getting used in leave page also
   return name
     .split(" ")
     .map((n) => n[0])
@@ -729,14 +705,14 @@ const ROLE_LABELS: Record<string, string> = {
 export default function DashboardPage() {
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       router.replace("/auth/login");
     }
-  }, []);
+  });
 
   const role = user?.role;
   const isHR = role === "hr_recruiter" || role === "admin";
@@ -880,7 +856,7 @@ export default function DashboardPage() {
                 {isCandidate && (
                   <>
                     <h2 className="text-white text-2xl sm:text-3xl font-bold mb-1">
-                      Hey {firstName}, you're on track! 🚀
+                      Hey {firstName}, you&apos;re on track! 🚀
                     </h2>
                     <p className="text-blue-200 text-sm max-w-md">
                       You have{" "}

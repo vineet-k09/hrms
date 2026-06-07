@@ -17,13 +17,14 @@ from .resume_ranker import rank_resume
 
 # Import DB model — adjust import path to match your project structure
 from src.models.ai_evaluation import AIEvaluation
+from src.models.application import Application
 logger = logging.getLogger(__name__)
 
 def run_resume_ranking_pipeline(
     zip_file,                   # FastAPI UploadFile
     job_description: str,
     db: Session,
-    batch_application_id: str = None,  # optional: group results under one application_id
+    batch_application_id: str = "",  # optional: group results under one application_id
 ) -> Dict[str, Any]:
     """
     Full end-to-end pipeline:
@@ -62,9 +63,23 @@ def run_resume_ranking_pipeline(
         }
     """
 
+    temp_dir = None
+    persist_evaluations = False
+
     # ── 1. Generate batch ID ──────────────────────────────────────────────────
     if not batch_application_id:
         batch_application_id = str(uuid.uuid4())
+    else:
+        try:
+            application_uuid = uuid.UUID(str(batch_application_id))
+        except ValueError:
+            application_uuid = None
+
+        if application_uuid and db.query(Application).filter(
+            Application.id == application_uuid
+        ).first():
+            batch_application_id = str(application_uuid)
+            persist_evaluations = True
 
     try:
         # ── 1. Extract ZIP ───────────────────────────────────────────────
@@ -114,44 +129,43 @@ def run_resume_ranking_pipeline(
             candidate["rank"] = idx
 
         # ── 5. Persist to DB (SAFE VERSION) ──────────────────────────────
-        db_records: List[AIEvaluation] = []
+        inserted_ids = [""] * len(scored_resumes)
 
-        for candidate in scored_resumes:
-            record = AIEvaluation(
-                application_id=batch_application_id,
-                resume_score=float(candidate.get("resume_score", 0)),
-                interview_score=candidate.get("interview_score"),
-                recommendation=candidate.get("recommendation"),
-                summary=candidate.get("summary"),
+        if persist_evaluations:
+            db_records: List[AIEvaluation] = []
 
-                extracted_skills={
-                    "skills_match": candidate.get("extracted_skills", {}).get("skills_match", []),
-                    "missing_skills": candidate.get("extracted_skills", {}).get("missing_skills", []),
-                },
+            for candidate in scored_resumes:
+                record = AIEvaluation(
+                    application_id=batch_application_id,
+                    resume_score=float(candidate.get("resume_score", 0)),
+                    interview_score=candidate.get("interview_score"),
+                    recommendation=candidate.get("recommendation"),
+                    summary=candidate.get("summary"),
 
-                metadata_={
-                    "filename": candidate.get("filename"),
-                    "rank": candidate.get("rank"),
-                    "pipeline": "ai_resume_ranker_v1",
-                    "parse_error": candidate.get("error"),
-                },
-            )
+                    extracted_skills={
+                        "skills_match": candidate.get("extracted_skills", {}).get("skills_match", []),
+                        "missing_skills": candidate.get("extracted_skills", {}).get("missing_skills", []),
+                    },
 
-            db.add(record)
-            db_records.append(record)
+                    metadata_={
+                        "filename": candidate.get("filename"),
+                        "rank": candidate.get("rank"),
+                        "pipeline": "ai_resume_ranker_v1",
+                        "parse_error": candidate.get("error"),
+                    },
+                )
 
-        try:
-            db.flush()
+                db.add(record)
+                db_records.append(record)
 
-            inserted_ids = [str(r.id) for r in db_records]
+            try:
+                db.flush()
+                inserted_ids = [str(r.id) for r in db_records]
+                db.commit()
 
-            db.commit()
-
-        except Exception as e:
-            db.rollback()
-            logger.exception("Failed to persist AI evaluation records")
-
-            inserted_ids = [""] * len(scored_resumes)
+            except Exception:
+                db.rollback()
+                logger.exception("Failed to persist AI evaluation records")
 
         # ── 6. Build response ────────────────────────────────────────────
         ranked_results = []

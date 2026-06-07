@@ -6,9 +6,9 @@
 import { useState } from "react";
 import Sidebar from "@/components/ui/sidebar";
 import {
-  Video, Calendar, Clock, User, Bot, Mic, Laptop,
-  ChevronLeft, ChevronRight, CheckCircle2, AlertCircle,
-  ExternalLink, Bell, MapPin,
+  Video, Calendar, Clock, User, Bot, Laptop,
+  ChevronLeft, ChevronRight, CheckCircle2,
+  ExternalLink, Bell,
 } from "lucide-react";
 
 // ─── Mock data ────────────────────────────────────────────────────────────────

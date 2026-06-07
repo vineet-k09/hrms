@@ -10,7 +10,7 @@ from src.models.enums import (
 
 
 class LeaveCreate(BaseModel):
-    employee_id: UUID
+    employee_id: UUID | str
 
     leave_type: LeaveType
 
@@ -32,7 +32,9 @@ class LeaveUpdate(BaseModel):
 
 
 class LeaveApproval(BaseModel):
-    approved_by: UUID
+    approved_by: UUID | str
+
+
 class LeaveResponse(BaseModel):
     id: UUID
 

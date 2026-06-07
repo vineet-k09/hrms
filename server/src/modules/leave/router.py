@@ -87,7 +87,8 @@ def get_leave(
 def create_leave(
     payload: LeaveCreate,
     db: Session = Depends(get_db)
-):
+):  
+    print(payload)
     try:
         return LeaveService.create(
             db,
@@ -137,7 +138,7 @@ def approve_leave(
         return LeaveService.approve(
             db,
             leave_id,
-            payload.approved_by
+            UUID(str(payload.approved_by))
         )
 
     except ValueError as e:
@@ -160,7 +161,7 @@ def reject_leave(
         return LeaveService.reject(
             db,
             leave_id,
-            payload.approved_by
+            UUID(str(payload.approved_by))
         )
 
     except ValueError as e:
