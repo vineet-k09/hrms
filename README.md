@@ -1,5 +1,66 @@
 # MyTeamHQ - AI powered HRMS system
 
+MyTeamHQ is an AI-powered Human Resource Management System (HRMS) designed to streamline recruitment and employee management workflows through automation and intelligent decision-making.
+
+The platform supports multiple user roles, including Admin, Senior Manager, HR Recruiter, Employee, and Candidate, providing personalized dashboards and role-based access to relevant features.
+
+## Key Features
+
+### AI-Powered Recruitment
+- Resume upload and parsing
+- Automated ATS-style candidate evaluation
+- Skill extraction and candidate scoring
+- AI-generated recommendations and summaries
+- Candidate ranking based on job requirements
+
+### Candidate Portal
+- Candidate registration and login
+- Job application submission
+- Application status tracking
+- Interview scheduling workflow
+
+### Employee Management
+- Employee profile management
+- Department and organizational hierarchy support
+- Role-based access control (RBAC)
+
+### Leave Management
+- Leave application submission
+- Manager approval/rejection workflow
+- Leave status tracking
+
+### Payroll Management
+- Employee payroll information
+- Payslip viewing and management
+
+### Authentication & Security
+- Secure authentication system
+- Multi-role login support
+- Protected routes and role-based authorization
+
+## Technology Stack
+
+### Frontend
+- Next.js
+- React
+- Tailwind CSS
+
+### Backend
+- FastAPI
+- Python
+- SQLAlchemy ORM
+
+### Database
+- PostgreSQL
+- Alembic Migrations
+
+### AI & Document Processing
+- Gemini LLM APIs
+- PyMuPDF
+
+## Vision
+
+MyTeamHQ aims to reduce manual HR effort by combining traditional HRMS functionalities with AI-driven recruitment workflows, helping organizations improve hiring efficiency and employee management through a modern, scalable platform.
 ## SETUP
 
 ### Client
