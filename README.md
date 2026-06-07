@@ -1,4 +1,4 @@
-# HRMS
+# MyTeamHQ - AI powered HRMS system
 
 ## SETUP
 
