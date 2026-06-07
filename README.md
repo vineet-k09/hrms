@@ -175,4 +175,4 @@ alembic upgrade head
 ## Devs
 
 [vineet-k09](https://github.com/vineet-k09),
-PranavBj2406
+[PranavBj2406](https://github.com/PranavBj2406)
