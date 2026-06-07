@@ -172,6 +172,10 @@ alembic revision --autogenerate -m "any migration message"
 alembic upgrade head
 ```
 
+## Screenshots
+<img width="1580" height="926" alt="image" src="https://github.com/user-attachments/assets/c7a828c2-dbae-404b-8ec2-8d9f4be27414" />
+
+
 ## Devs
 
 [vineet-k09](https://github.com/vineet-k09),
