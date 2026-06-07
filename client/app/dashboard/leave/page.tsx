@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Leave } from "../types";
+import { Leave } from "../../types";
 
 import {
 	Bell,
@@ -197,13 +197,13 @@ export default function LeavePage() {
 
 							<div className="flex gap-3 shrink-0">
 								<button
-									onClick={() => router.push("/leave/application")}
+									onClick={() => router.push("/dashboard/leave/application")}
 									className="flex items-center gap-2 bg-white text-[#0f172a] px-4 py-2.5 rounded-lg font-medium hover:bg-blue-50 transition-colors">
 									<Plus className="w-4 h-4" />
 									Apply Leave
 								</button>
 								<button
-									onClick={() => router.push("/leave/review")}
+									onClick={() => router.push("/dashboard/leave/review")}
 									className="flex items-center gap-2 bg-blue-600/20 border border-blue-400/30 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-600/30 transition-colors">
 									<CheckCircle className="w-4 h-4" />
 									Review Leaves
