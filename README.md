@@ -38,6 +38,10 @@ The platform supports multiple user roles, including Admin, Senior Manager, HR R
 - Multi-role login support
 - Protected routes and role-based authorization
 
+### Project Architecture
+
+<img width="1540" height="1709" alt="diagram-export-6-7-2026-9_03_37-PM" src="https://github.com/user-attachments/assets/f9aa8e21-45d5-4583-8861-a7ad41436287" />
+
 ## Technology Stack
 
 ### Frontend
