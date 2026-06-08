@@ -1,0 +1,21 @@
+name: Keep Render Awake
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Ping Render App
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://hrms-02zz.onrender.com)
+          echo "Response Code: $response"
+
+          if [ "$response" -ne 200 ]; then
+            echo "Health check failed!"
+            exit 1
+          fi
